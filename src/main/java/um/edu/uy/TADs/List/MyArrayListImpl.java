@@ -131,7 +131,7 @@ public class MyArrayListImpl<T> implements MyList<T>{
     }
 
     public T get(int index) throws ListOutOfIndex, EmptyListException{
-        if (index>=this.indexLastValue){
+        if (index>=this.indexLastValue || index<0){
             throw new ListOutOfIndex("Index no valido");
         }
         if (isEmpty()){
