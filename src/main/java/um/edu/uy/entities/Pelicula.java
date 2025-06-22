@@ -88,7 +88,7 @@ public class Pelicula implements Comparable<Pelicula>{
             for (Evaluacion tempEvaluacion : tempListaEvaluacion)
                 sumaDeCalificaciones += tempEvaluacion.getCalificacion();
         }
-        return sumaDeCalificaciones / size;
+        return size == 0 ? 0 : sumaDeCalificaciones / size;
     }
 
     public void agregarEvaluacion(Evaluacion tempEvaluacion) {

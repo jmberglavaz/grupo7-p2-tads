@@ -8,7 +8,7 @@
         <option name="gradleHome" value="" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/../../Programación II/grupo7-p2-tads" />
+            <option value="$PROJECT_DIR$" />
           </set>
         </option>
       </GradleProjectSettings>

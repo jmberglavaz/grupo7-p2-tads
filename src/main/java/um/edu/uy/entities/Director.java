@@ -54,8 +54,10 @@ public class Director {
 
         Sorting<Float> ordenamiento = new Sorting<>();
         evaluaciones = ordenamiento.quickSort(evaluaciones);
+
+        System.out.println(largo);
         return (largo % 2 == 0) ?
-                (evaluaciones.get(largo/2) + evaluaciones.get((largo/2) + 1))/2 :
-                evaluaciones.get((largo + 1)/2);
+                (evaluaciones.get(largo/2) + evaluaciones.get((largo/2) - 1))/2 :
+                evaluaciones.get(((largo + 1)/2)-1);
     }
 }
