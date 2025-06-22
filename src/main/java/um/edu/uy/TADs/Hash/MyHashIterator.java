@@ -14,24 +14,24 @@ public class MyHashIterator<T> implements Iterator<T> {
         moveToNextValid(); // Mover al primer elemento válido
     }
 
+    @Override
     public boolean hasNext() {
         return currentIndex < table.length;
     }
 
+    @Override
     public T next() {
-        if (!hasNext()) {
-            throw new RuntimeException("No more elements");
+        if (!hasNext()){
+            throw new RuntimeException("");// Cambiar excepcion
         }
-
-        T data = table[currentIndex].getData();
+        T currentData = table[currentIndex].getData();
         currentIndex++;
         moveToNextValid();
-        return data;
+        return currentData;
     }
 
     private void moveToNextValid() {
-        while (currentIndex < table.length &&
-                (table[currentIndex] == null || table[currentIndex] == deleteNode)) {
+        while ((currentIndex < table.length) && (table[currentIndex] == null || table[currentIndex] == deleteNode)) {
             currentIndex++;
         }
     }

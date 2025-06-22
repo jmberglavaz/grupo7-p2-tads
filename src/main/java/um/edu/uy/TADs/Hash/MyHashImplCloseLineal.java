@@ -5,7 +5,7 @@ import um.edu.uy.Exceptions.ValueNoExist;
 
 import java.util.Iterator;
 
-public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
+public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
     private HashNode<K,T>[] table;
     private int size;         // Cantidad de elementos insertados
     private int capacity;     // Tamaño actual de la tabla (longitud del array)
@@ -19,18 +19,14 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
-        return new MyHashIterator<>(this.table, this.deleteNode);
-    }
-
-    @Override
     public int size(){
         return this.size;
     }
 
     @Override
     public void insert(K clave, T data) throws ElementAlreadyExist {
-        if ((double) size / capacity >= maxFactorDeCarga) { // Verificar si necesitamos rehashing antes de insertar
+        // Verificar si necesitamos rehashing antes de insertar
+        if ((double) size / capacity >= maxFactorDeCarga) {
             incrementLength();
         }
 
@@ -59,12 +55,12 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
 
     @Override
     public boolean contains(K clave) {
-        return search(clave) >= 0;
+        return searchIndex(clave) >= 0;
     }
 
     @Override
     public void delete(K clave) {
-        int index = search(clave);
+        int index = searchIndex(clave);
         if (index < 0){
             throw new ValueNoExist("This object does not exist");
         }
@@ -80,6 +76,7 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
         this.capacity = findNextPrime(this.capacity * 2);
 
         this.table = new HashNode[this.capacity];
+        int oldSize = this.size;
         this.size = 0;
 
         // Se reinsertan todos los elementos
@@ -87,14 +84,17 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
             if (node != null && node != deleteNode) {
                 try {
                     insert(node.getKey(), node.getData());
-                } catch (ElementAlreadyExist ignored) {} // Esto no debería pasar durante rehashing
+                } catch (ElementAlreadyExist e) {
+                    // Esto no debería pasar durante rehashing
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     @Override
     public T get(K clave) {
-        int index = search(clave);
+        int index = searchIndex(clave);
         if (index < 0){
             return null;
         }
@@ -108,6 +108,17 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    @Override
+    public void changeValue(K clave, T newData){
+        int index = searchIndex(clave);
+
+        if (index < 0){
+            throw new ValueNoExist("The value no exist in the table");
+        }
+
+        table[index].setData(newData);
     }
 
     private boolean isPrime(int number) {
@@ -130,7 +141,7 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
         return number;
     }
 
-    private int search(K clave) {
+    private int searchIndex(K clave) {
         int index = hash(clave);
         int probes = 0;
 
@@ -151,5 +162,50 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T>, Iterable<T> {
         hash *= 73244091;
         hash ^= (hash >>> 16);
         return Math.abs(hash) % capacity;
+    }
+    // Devolper method
+
+    public void printStats() {
+        System.out.println("Hash Table Stats:");
+        System.out.println("  Tamano: " + size);
+        System.out.println("  Capacidad: " + capacity);
+        System.out.println("  Factor de Carga: " + String.format("%.2f", (double) size / capacity));
+
+        int maxProbes = 0;
+        int totalProbes = 0;
+        int usedSlots = 0;
+
+        for (int i = 0; i < capacity; i++) {
+            if (table[i] != null && table[i] != deleteNode) {
+                usedSlots++;
+                int probes = calculateProbes(table[i].getKey());
+                totalProbes += probes;
+                maxProbes = Math.max(maxProbes, probes);
+            }
+        }
+
+        if (usedSlots > 0) {
+            System.out.println("  Average probes: " + String.format("%.2f", (double) totalProbes / usedSlots));
+            System.out.println("  Max probes: " + maxProbes);
+        }
+        System.out.println("\n");
+    }
+
+
+    private int calculateProbes(K key) {
+        int index = hash(key);
+        int probes = 1;
+
+        while (table[index] != null && !table[index].getKey().equals(key)) {
+            index = (index + 1) % capacity;
+            probes++;
+        }
+
+        return probes;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new MyHashIterator<>(table, deleteNode);
     }
 }

@@ -49,6 +49,7 @@ public class CargaDeEvaluaciones {
                 cantidadValida++;
             } catch (Exception e) {continue;}
 
+
             if (idUsuario >= 0) {
                 Pelicula pelicula = peliculas.get(idPelicula);
 

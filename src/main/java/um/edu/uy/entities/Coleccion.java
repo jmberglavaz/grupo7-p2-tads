@@ -6,7 +6,7 @@ import um.edu.uy.TADs.List.MyList;
 public class Coleccion {
     private int id;
     private String titulo;
-    private MyList<Integer> listaDePeliculas;
+    private MyList<Pelicula> listaDePeliculas;
     public Coleccion(int id, String titulo) {
         this.id = id;
         this.titulo = titulo;
@@ -29,15 +29,19 @@ public class Coleccion {
         this.titulo = titulo;
     }
 
-    public MyList<Integer> getListaDePeliculas() {
+    public MyList<Pelicula> getListaDePeliculas() {
         return listaDePeliculas;
     }
 
-    public void setListaDePeliculas(MyList<Integer> listaDePeliculas) {
+    public void setListaDePeliculas(MyList<Pelicula> listaDePeliculas) {
         this.listaDePeliculas = listaDePeliculas;
     }
 
-    public void agregarPelicula(int idPelicula){
-        listaDePeliculas.add(idPelicula);
+    public void agregarPelicula(Pelicula tempPeli){
+        listaDePeliculas.add(tempPeli);
+    }
+
+    public int getCantidadPeliculas(){
+        return listaDePeliculas.size();
     }
 }

@@ -1,4 +1,4 @@
-package um.edu.uy.Sistema.Consulta2;
+package um.edu.uy.Sistema;
 
 import um.edu.uy.TADs.Hash.HashNode;
 import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
@@ -8,8 +8,8 @@ import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Pelicula;
 import um.edu.uy.entities.UMovie;
 
-public class Consulta2 {
-    public Consulta2(UMovie uMovie) {
+public class TopPeliculas {
+    public TopPeliculas(UMovie uMovie) {
         this.uMovie = uMovie;
         imprimirTop10();
     }

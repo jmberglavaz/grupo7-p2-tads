@@ -1,7 +1,7 @@
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
+!**/src/Main/**/build/
 !**/src/test/**/build/
 
 ### IntelliJ IDEA ###
@@ -14,7 +14,7 @@ build/
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
+!**/src/Main/**/out/
 !**/src/test/**/out/
 
 ### Eclipse ###
@@ -26,7 +26,7 @@ out/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
+!**/src/Main/**/bin/
 !**/src/test/**/bin/
 
 ### NetBeans ###
@@ -43,6 +43,6 @@ bin/
 .DS_Store
 
 ### resources ###
-src/main/resources/credits.csv
-src/main/resources/movies_metadata.csv
-src/main/resources/ratings_1mm.csv
+src/Main/resources/credits.csv
+src/Main/resources/movies_metadata.csv
+src/Main/resources/ratings_1mm.csv

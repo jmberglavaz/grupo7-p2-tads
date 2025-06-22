@@ -82,10 +82,10 @@ public class CargaDePeliculas {
             for (Genero genero : listaGeneros) {
                 try{
                     this.generos.insert(genero.getId(), genero);
-                    genero.agregarPelicula(idPelicula);
+                    genero.agregarPelicula(pelicula);
                 } catch (ElementAlreadyExist ignored) {
                     genero = generos.get(genero.getId());
-                    genero.agregarPelicula(idPelicula);
+                    genero.agregarPelicula(pelicula);
                 }
             }
 
@@ -94,10 +94,10 @@ public class CargaDePeliculas {
                 Idioma idioma = new Idioma(acronimoIdioma);
                 try {
                     idiomas.insert(acronimoIdioma, idioma);
-                    idioma.agregarPelicula(idPelicula);
+                    idioma.agregarPelicula(pelicula);
                 } catch (ElementAlreadyExist ignored) {
                     idioma = idiomas.get(acronimoIdioma);
-                    idioma.agregarPelicula(idPelicula);
+                    idioma.agregarPelicula(pelicula);
                 }
             }
 
@@ -105,10 +105,10 @@ public class CargaDePeliculas {
             if (coleccion != null){
                 try {
                     colecciones.insert(coleccion.getId(), coleccion);
-                    coleccion.agregarPelicula(idPelicula);
+                    coleccion.agregarPelicula(pelicula);
                 } catch (ElementAlreadyExist ignored) {
                     coleccion = colecciones.get(coleccion.getId());
-                    coleccion.agregarPelicula(idPelicula);
+                    coleccion.agregarPelicula(pelicula);
                 }
             }
         }

@@ -5,11 +5,11 @@ import um.edu.uy.TADs.List.MyList;
 
 public class Actor {
     private String nombre;
-    private final MyList<Integer> peluculasId;
+    private final MyList<Pelicula> peliculas;
 
     public Actor(String nombre) {
         this.nombre = nombre;
-        this.peluculasId = new MyLinkedListImpl<>();
+        this.peliculas = new MyLinkedListImpl<>();
     }
     public String getNombre() {
         return nombre;
@@ -17,10 +17,18 @@ public class Actor {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    public MyList<Integer> getPeluculasId() {
-        return peluculasId;
+    public MyList<Pelicula> getPeliculas() {
+        return peliculas;
     }
-    public void agregarPelicula(int id) {
-        peluculasId.add(id);
+    public void agregarPelicula(Pelicula tempPeli) {
+        peliculas.add(tempPeli);
+    }
+
+    public int getCantidadEvaluacionesActorPorMes(int nroMes) {
+        int cantidadEvaluacionesEnMes = 0;
+        for (Pelicula pelicula : peliculas) {
+            cantidadEvaluacionesEnMes += pelicula.getListaEvaluacionesEnMes(nroMes).size();
+        }
+        return cantidadEvaluacionesEnMes;
     }
 }

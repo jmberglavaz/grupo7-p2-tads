@@ -40,7 +40,7 @@ public class CargaDeStaff {
         }
     }
 
-    public void cargarDatos(MyHash<Integer, Pelicula> peliculas) throws CsvValidationException, IOException {
+    public void cargarDatos(MyHash<Integer, Pelicula> listaDePeiculas) throws CsvValidationException, IOException {
         long inicio = developerMode ? System.currentTimeMillis() : 0;
 
         System.out.println("Iniciando carga de créditos...");
@@ -56,17 +56,17 @@ public class CargaDeStaff {
                 continue;
             }
 
-            Pelicula pelicula = peliculas.get(idPelicula);
+            Pelicula pelicula = listaDePeiculas.get(idPelicula);
             if (pelicula == null) continue;
 
             String actoresRaw = dataLine[0];
             if (actoresRaw != null && !actoresRaw.isEmpty()) {
-                procesarActores(actoresRaw, idPelicula);
+                procesarActores(actoresRaw, pelicula);
             }
 
             String equipoRaw = dataLine[1];
             if (equipoRaw != null && equipoRaw.contains("Director")) {
-                procesarDirectores(equipoRaw, idPelicula);
+                procesarDirectores(equipoRaw, pelicula);
             }
         }
 
@@ -83,7 +83,7 @@ public class CargaDeStaff {
         return actores;
     }
 
-    private void procesarActores(String entrada, int idPelicula) {
+    private void procesarActores(String entrada, Pelicula tempPeli) {
         int posicionInicial = 0;
         int longitud = entrada.length();
         MyHash<String, Boolean> actoresVistos = new MyHashImplCloseLineal<>(100);
@@ -110,7 +110,7 @@ public class CargaDeStaff {
                         actor = new Actor(nombreActor);
                         actores.insert(nombreActor, actor);
                     }
-                    actor.agregarPelicula(idPelicula);
+                    actor.agregarPelicula(tempPeli);
                 } catch (ElementAlreadyExist ignored) {}
             }
 
@@ -118,7 +118,7 @@ public class CargaDeStaff {
         }
     }
 
-    private void procesarDirectores(String entrada, int idPelicula) {
+    private void procesarDirectores(String entrada, Pelicula tempPeli) {
         int posicionInicial = 0;
         int longitud = entrada.length();
 
@@ -133,7 +133,7 @@ public class CargaDeStaff {
             }
 
             int inicioNombre = posNombre + CLAVE_NOMBRE.length();
-            int finNombre = entrada.indexOf("\"", inicioNombre);
+            int finNombre = entrada.indexOf("'", inicioNombre);
             if (finNombre == -1) {
                 posicionInicial = posDirector + TRABAJO_DIRECTOR.length();
                 continue;
@@ -144,11 +144,11 @@ public class CargaDeStaff {
             try {
                 Director director = new Director(nombreDirector);
                 directores.insert(nombreDirector, director);
-                director.getListaPeliculas().add(idPelicula);
+                director.agregarPelicula(tempPeli);
             } catch (ElementAlreadyExist ignored) {
                 Director director = directores.get(nombreDirector);
                 if (director != null) { //Siempre se deberia cumplir esta condicion
-                    director.getListaPeliculas().add(idPelicula);
+                    director.agregarPelicula(tempPeli);
                 }
             }
 

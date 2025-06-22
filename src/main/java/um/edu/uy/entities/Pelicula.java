@@ -55,11 +55,24 @@ public class Pelicula implements Comparable<Pelicula>{
         this.ingresos = ingresos;
     }
 
-    public MyList<MyList<Evaluacion>> getListaEvaluaciones() {
-        return listaEvaluaciones;
+    public MyList<Evaluacion> getListaEvaluaciones() {
+        MyList<Evaluacion> listaResultado = new MyLinkedListImpl<>();
+        for (MyList<Evaluacion> tempLista : this.listaEvaluaciones){
+            for (Evaluacion tempEvaluacion : tempLista){
+                listaResultado.add(tempEvaluacion);
+            }
+        }
+        return listaResultado;
     }
 
-    private int cantidadEvaluaciones() {
+    public MyList<Evaluacion> getListaEvaluacionesEnMes(int mes){
+        if (mes < 1 || mes > 12){
+            throw new IllegalArgumentException("El mes tiene que estar entre 1 y 12");
+        }
+        return listaEvaluaciones.get(mes-1);
+    }
+
+    public int getCantidadEvaluaciones() {
         int size = 0;
         for (MyList<Evaluacion> evalucionesPorMes : listaEvaluaciones){
             size += evalucionesPorMes.size();
@@ -94,6 +107,7 @@ public class Pelicula implements Comparable<Pelicula>{
 
     @Override
     public int compareTo(Pelicula tempPelicula) {
-        return Integer.compare(this.cantidadEvaluaciones(), tempPelicula.cantidadEvaluaciones());
+        return Integer.compare(this.getCantidadEvaluaciones(), tempPelicula.getCantidadEvaluaciones());
     }
+
 }

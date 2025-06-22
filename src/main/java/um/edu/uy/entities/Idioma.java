@@ -6,7 +6,7 @@ import um.edu.uy.TADs.List.MyList;
 public class Idioma {
     private String nombre;
     private String acronimo;
-    private MyList<Integer> listaPeliculas;
+    private MyList<Pelicula> listaPeliculas;
 
     public Idioma(String acronimo) {
         this.nombre = null;
@@ -30,23 +30,15 @@ public class Idioma {
         this.acronimo = acronimo;
     }
 
-    public MyList<Integer> getListaPeliculas() {
+    public MyList<Pelicula> getListaPeliculas() {
         return listaPeliculas;
     }
 
-    public void setListaPeliculas(MyList<Integer> listaPeliculas) {
+    public void setListaPeliculas(MyList<Pelicula> listaPeliculas) {
         this.listaPeliculas = listaPeliculas;
     }
 
-    public void agregarPelicula(int id) {
-        listaPeliculas.add(id);
-    }
-
-    public void printPeliculas() {
-        System.out.println("#####" + acronimo + "######");
-        for (int i = 0; i < listaPeliculas.size(); i++) {
-            System.out.println(listaPeliculas.get(i));
-        }
-        System.out.println("#####" + acronimo + "######");
+    public void agregarPelicula(Pelicula tempPeli) {
+        listaPeliculas.add(tempPeli);
     }
 }
