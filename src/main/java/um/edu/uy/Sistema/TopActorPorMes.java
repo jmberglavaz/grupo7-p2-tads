@@ -23,21 +23,21 @@ public class TopActorPorMes {
         MyHeapKT<Integer, Actor> actoresPorRatingNoviembre = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
         MyHeapKT<Integer, Actor> actoresPorRatingDiciembre = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
 
-        for (int iter = 0; iter < listaActores.size(); iter++) {
+        for (Actor actor : listaActores) {
             // Agrego el actor a cada heap de mes usando la cantidad de evaluaciones en el mes como key
-            if (listaActores.get(String.valueOf(iter)) != null) {
-                actoresPorRatingEnero.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(1), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingFebrero.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(2), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingMarzo.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(3), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingAbril.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(4), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingMayo.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(5), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingJunio.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(6), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingJulio.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(7), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingAgosto.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(8), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingSetiembre.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(9), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingOctubre.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(10), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingNoviembre.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(11), listaActores.get(String.valueOf(iter)));
-                actoresPorRatingDiciembre.insert(listaActores.get(String.valueOf(iter)).getCantidadEvaluacionesActorPorMes(12), listaActores.get(String.valueOf(iter)));
+            if (actor != null) {
+                actoresPorRatingEnero.insert(actor.getCantidadEvaluacionesActorPorMes(1), actor);
+                actoresPorRatingFebrero.insert(actor.getCantidadEvaluacionesActorPorMes(2), actor);
+                actoresPorRatingMarzo.insert(actor.getCantidadEvaluacionesActorPorMes(3), actor);
+                actoresPorRatingAbril.insert(actor.getCantidadEvaluacionesActorPorMes(4), actor);
+                actoresPorRatingMayo.insert(actor.getCantidadEvaluacionesActorPorMes(5), actor);
+                actoresPorRatingJunio.insert(actor.getCantidadEvaluacionesActorPorMes(6), actor);
+                actoresPorRatingJulio.insert(actor.getCantidadEvaluacionesActorPorMes(7), actor);
+                actoresPorRatingAgosto.insert(actor.getCantidadEvaluacionesActorPorMes(8), actor);
+                actoresPorRatingSetiembre.insert(actor.getCantidadEvaluacionesActorPorMes(9), actor);
+                actoresPorRatingOctubre.insert(actor.getCantidadEvaluacionesActorPorMes(10), actor);
+                actoresPorRatingNoviembre.insert(actor.getCantidadEvaluacionesActorPorMes(11), actor);
+                actoresPorRatingDiciembre.insert(actor.getCantidadEvaluacionesActorPorMes(12), actor);
             }
         }
         HeapNode<Integer, Actor> actorEne = actoresPorRatingEnero.deleteAndObtainNode();
