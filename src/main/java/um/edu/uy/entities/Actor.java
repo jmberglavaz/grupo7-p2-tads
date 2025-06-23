@@ -31,4 +31,8 @@ public class Actor {
         }
         return cantidadEvaluacionesEnMes;
     }
+
+    public int getCantidadPeliculasActor() {
+        return peliculas.size();
+    }
 }
