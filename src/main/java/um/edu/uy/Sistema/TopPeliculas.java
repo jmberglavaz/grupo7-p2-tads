@@ -1,22 +1,17 @@
 package um.edu.uy.Sistema;
 
-import um.edu.uy.Exceptions.EmptyHeapException;
-import um.edu.uy.TADs.Hash.HashNode;
 import um.edu.uy.TADs.HeapKT.HeapNode;
 import um.edu.uy.TADs.HeapKT.MyHeapKT;
 import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
-import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
-import um.edu.uy.TADs.Tree.SimpleBinaryNode;
 import um.edu.uy.TADs.Hash.MyHash;
-import um.edu.uy.TADs.List.MyList;
-import um.edu.uy.entities.Evaluacion;
 import um.edu.uy.entities.Pelicula;
-import um.edu.uy.entities.UMovie;
+
 
 public class TopPeliculas {
     // Top 10 de las películas que mejor calificación media tienen por parte de los usuarios, considerando solo las películas con mas de 100 calificaciones
 
     public static void realizarConsulta(MyHash<Integer, Pelicula> listaPeliculas) {
+        long inicio = System.currentTimeMillis();
         MyHeapKT<Float, Pelicula> peliculasPorCalificacionMedia = new MyHeapKTImplementation<>(listaPeliculas.size(), false);
 
         // Agrego películas:
@@ -40,6 +35,8 @@ public class TopPeliculas {
         System.out.println("Top 8: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
         System.out.println("Top 9: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
         System.out.println("Top 10: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()) + "\n");
+
+        System.out.println("Tiempo total de consulta: " + (System.currentTimeMillis() - inicio) + "ms");
     }
 
     private static String imprimirPeliculaConTop(HeapNode<Float, Pelicula> peliculaConCalificacion) {

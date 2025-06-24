@@ -10,6 +10,8 @@ import um.edu.uy.entities.Pelicula;
 public class TopActorPorMes {
 
     public static void realizarConsulta(MyHash<Integer, Pelicula> listaPeliculas, MyHash<String, Actor> listaActores) {
+        long inicio = System.currentTimeMillis();
+
         MyHeapKT<Integer, Actor> actoresPorRatingEnero = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
         MyHeapKT<Integer, Actor> actoresPorRatingFebrero = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
         MyHeapKT<Integer, Actor> actoresPorRatingMarzo = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
@@ -65,6 +67,8 @@ public class TopActorPorMes {
         System.out.println("Octubre: " + imprimirActor(actorOct));
         System.out.println("Noviembre: " + imprimirActor(actorNov));
         System.out.println("Diciembre: " + imprimirActor(actorDic));
+
+        System.out.println("Tiempo total de consulta: " + (System.currentTimeMillis() - inicio) + "ms");
     }
 
     private static String imprimirActor(HeapNode<Integer, Actor> actorMes) {
