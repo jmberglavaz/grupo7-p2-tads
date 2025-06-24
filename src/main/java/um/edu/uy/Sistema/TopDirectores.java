@@ -3,8 +3,6 @@ package um.edu.uy.Sistema;
 import um.edu.uy.TADs.Hash.MyHash;
 import um.edu.uy.TADs.Heap.MyHeap;
 import um.edu.uy.TADs.Heap.MyHeapImpl;
-import um.edu.uy.TADs.HeapKT.MyHeapKT;
-import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
 import um.edu.uy.entities.Director;
 
 public class TopDirectores {
