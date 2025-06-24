@@ -115,7 +115,7 @@ public class UMovie {
     private boolean verificarOpcionConsultas(int opcion){
         switch (opcion) {
             case 1 -> TopPeliculasPorIdioma.realizarConsulta(idiomas);
-            case 2 -> System.out.println("Funcion de peliculas mejor evaluadas (Pendiente)");
+            case 2 -> TopPeliculas.realizarConsulta(peliculas);
             case 3 -> System.out.println("La tengo que arreglar con los de las FK"); //.realizarConsulta(peliculas, colecciones);
             case 4 -> TopDirectores.realizarConsulta(directores);
             case 5 -> TopActorPorMes.realizarConsulta(peliculas, actores); //System.out.println("Funcion de actor mejor calificado por cada mes (Pendiente)");
