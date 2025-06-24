@@ -1,16 +1,17 @@
 package um.edu.uy.entities;
 
+
 import java.util.Date;
 
 public class Evaluacion {
     private int idUsuario;
     private float calificacion;
-    private Date fecha;
+    private int fechaMes;
 
-    public Evaluacion(int idUsuario, float calificacion, Date fecha) {
+    public Evaluacion(int idUsuario, float calificacion, Date fechaMes) {
         this.idUsuario = idUsuario;
         this.calificacion = calificacion;
-        this.fecha = fecha;
+        this.fechaMes = fechaMes.getMonth();
     }
 
     public int getIdUsuario() {
@@ -29,11 +30,11 @@ public class Evaluacion {
         this.calificacion = calificacion;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public int getFechaMes() {
+        return fechaMes;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setFechaMes(int fechaMes) {
+        this.fechaMes = fechaMes;
     }
 }

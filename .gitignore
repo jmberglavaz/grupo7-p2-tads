@@ -43,6 +43,6 @@ bin/
 .DS_Store
 
 ### resources ###
-src/Main/resources/credits.csv
-src/Main/resources/movies_metadata.csv
-src/Main/resources/ratings_1mm.csv
+credits.csv
+movies_metadata.csv
+ratings_1mm.csv

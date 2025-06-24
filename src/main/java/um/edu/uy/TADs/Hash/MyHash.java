@@ -10,4 +10,5 @@ public interface MyHash<K,T> extends Iterable<T>{
     T get(K clave);
     T obtain(int index);
     void changeValue(K clave, T newData);
+    void clean();
 }

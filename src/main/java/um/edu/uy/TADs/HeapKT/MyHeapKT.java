@@ -7,4 +7,5 @@ public interface MyHeapKT<K extends Comparable<K>, T> {
     T deleteAndObtain() throws EmptyHeapException;
     HeapNode<K, T> deleteAndObtainNode() throws EmptyHeapException;
     int size();
+    K obtainRootKey();
 }

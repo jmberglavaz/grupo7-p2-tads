@@ -77,6 +77,14 @@ public class MyHeapKTImplementation<K extends Comparable<K>, T> implements MyHea
         return size;
     }
 
+    @Override
+    public K obtainRootKey() {
+        if (!isEmpty()){
+            return heap[0].getKey();
+        }
+        return null;
+    }
+
     private void subirNodo(int posicion) {
         while (posicion > 0) {
             int posicionPadre = (posicion - 1) / 2;

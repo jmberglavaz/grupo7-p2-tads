@@ -56,8 +56,9 @@ public class Pelicula implements Comparable<Pelicula>{
     }
 
     public MyList<Evaluacion> getListaEvaluaciones() {
-        MyList<Evaluacion> listaResultado = new MyLinkedListImpl<>();
+        MyList<Evaluacion> listaResultado = new MyArrayListImpl<>(100);
         for (MyList<Evaluacion> tempLista : this.listaEvaluaciones){
+            if (tempLista == null) {continue;}
             for (Evaluacion tempEvaluacion : tempLista){
                 listaResultado.add(tempEvaluacion);
             }
@@ -92,8 +93,8 @@ public class Pelicula implements Comparable<Pelicula>{
     }
 
     public void agregarEvaluacion(Evaluacion tempEvaluacion) {
-        int mes = tempEvaluacion.getFecha().getMonth();
-        listaEvaluaciones.get(mes).add(tempEvaluacion);
+        MyList<Evaluacion> tempLista = listaEvaluaciones.get(tempEvaluacion.getFechaMes());
+        tempLista.add(tempEvaluacion);
     }
   
    public void setListaDeActores(MyList<String> actores) {

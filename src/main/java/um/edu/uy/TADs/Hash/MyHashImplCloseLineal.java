@@ -19,6 +19,14 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
     }
 
     @Override
+    public void clean(){
+        for (int i = 0; i < capacity; i++) {
+            table[i] = null;
+        }
+        this.size = 0;
+    }
+
+    @Override
     public int size(){
         return this.size;
     }
