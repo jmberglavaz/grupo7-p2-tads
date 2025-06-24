@@ -5,13 +5,15 @@ import um.edu.uy.TADs.List.MyArrayListImpl;
 import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.TADs.Sorting;
 
-public class Director {
+public class Director implements Comparable<Director>{
     private String nombre;
     private final MyList<Pelicula> listaPeliculas;
+    private float mediana;
+    private int cantEvaluciones;
 
     public Director(String nombre) {
         this.nombre = nombre;
-        this.listaPeliculas = new MyLinkedListImpl<>();
+        this.listaPeliculas = new MyArrayListImpl<>();
     }
 
     public String getNombre() {
@@ -35,15 +37,30 @@ public class Director {
     }
 
     public int getCantidadEvaluaciones(){
+        if (this.cantEvaluciones != 0){
+            return this.cantEvaluciones;
+        }
+
         int cant = 0;
         for (Pelicula peliActual : listaPeliculas){
             cant += peliActual.getCantidadEvaluaciones();
         }
-        return cant;
+
+        this.cantEvaluciones = cant;
+        return cantEvaluciones;
     }
 
     public float obtainMediana(){
+        if (this.mediana != 0){
+            return mediana;
+        }
+
+
         int largo = getCantidadEvaluaciones();
+        if (listaPeliculas.size() <= 1 || largo <=100){
+            return 0;
+        }
+
         MyList<Float> evaluaciones = new MyArrayListImpl<>(largo);
         for (Pelicula tempPelicula : listaPeliculas){
             if (tempPelicula.getCantidadEvaluaciones() == 0){continue;}
@@ -55,9 +72,14 @@ public class Director {
         Sorting<Float> ordenamiento = new Sorting<>();
         evaluaciones = ordenamiento.quickSort(evaluaciones);
 
-        System.out.println(largo);
-        return (largo % 2 == 0) ?
+        this.mediana = (largo % 2 == 0) ?
                 (evaluaciones.get(largo/2) + evaluaciones.get((largo/2) - 1))/2 :
                 evaluaciones.get(((largo + 1)/2)-1);
+        return this.mediana;
+    }
+
+    @Override
+    public int compareTo(Director tempDirector) {
+        return Float.compare(this.obtainMediana(),tempDirector.obtainMediana());
     }
 }

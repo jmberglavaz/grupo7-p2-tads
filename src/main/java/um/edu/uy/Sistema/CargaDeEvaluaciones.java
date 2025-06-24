@@ -6,10 +6,7 @@ import um.edu.uy.TADs.Hash.MyHash;
 import um.edu.uy.entities.Evaluacion;
 import um.edu.uy.entities.Pelicula;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Date;
 
 public class CargaDeEvaluaciones {
@@ -20,10 +17,8 @@ public class CargaDeEvaluaciones {
     public CargaDeEvaluaciones(boolean developerMode) {
         this.DeveloperMode = developerMode;
         try{
-            InputStream archivoDatos = CargaDePeliculas.class.getResourceAsStream("/ratings_1mm.csv");
-            assert archivoDatos != null;
-            BufferedReader bufferLectura = new BufferedReader(new InputStreamReader(archivoDatos));
-            this.lectorCSV = new CSVReader(bufferLectura);
+            FileInputStream archivoCSV = new FileInputStream("ratings_1mm.csv");
+            this.lectorCSV = new CSVReader(new InputStreamReader(archivoCSV));
             this.lineaDatos = lectorCSV.readNext();
         } catch (IOException | CsvValidationException ignored) { // No deberia de ocurrir, pero si ocurre, se imprime el error
             System.out.println("Error crítico al cargar el archivo de evaluaciones. Asegúrese de que el archivo ratings_1mm.csv se encuentre en la carpeta resources del proyecto.");
@@ -33,7 +28,6 @@ public class CargaDeEvaluaciones {
     public void cargarDatos(MyHash<Integer, Pelicula> peliculas) throws CsvValidationException, IOException {
         long tiempoInicio = DeveloperMode ? System.currentTimeMillis() : 0;
         int cantidadValida = 0;
-
         System.out.println("Iniciando carga de evaluaciones...");
 
         while ((lineaDatos = lectorCSV.readNext()) != null) {
@@ -54,13 +48,17 @@ public class CargaDeEvaluaciones {
                 Pelicula pelicula = peliculas.get(idPelicula);
 
                 if (pelicula != null) {
-                    pelicula.agregarEvaluacion(new Evaluacion(idUsuario, calificacion, fecha));
+                    try {
+                        pelicula.agregarEvaluacion(new Evaluacion(idUsuario, calificacion, fecha));
+                    } catch (Exception e){
+                        System.out.println("Error");
+                    }
                 }
             }
         }
 
         if (DeveloperMode) {
-          mostrarEstadisticasCarga(tiempoInicio, System.currentTimeMillis(), cantidadValida);
+            mostrarEstadisticasCarga(tiempoInicio, System.currentTimeMillis(), cantidadValida);
         }
 
     }

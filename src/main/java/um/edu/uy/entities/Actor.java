@@ -14,12 +14,15 @@ public class Actor {
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
     public MyList<Pelicula> getPeliculas() {
         return peliculas;
     }
+
     public void agregarPelicula(Pelicula tempPeli) {
         peliculas.add(tempPeli);
     }

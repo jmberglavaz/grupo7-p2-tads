@@ -3,7 +3,7 @@ package um.edu.uy.Sistema;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -26,18 +26,18 @@ public class CargaDePeliculas {
     private final MyHash<Integer, Genero> generos;
     private final MyHash<String, Idioma> idiomas;
     private final MyHash<Integer, Coleccion> colecciones;
-    private final Pattern patternColeccion = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
-    private final Pattern patternGenero = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+    private final Pattern PATTERNCOLECCION = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+    private final Pattern PATTERNGENERO = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
 
     public CargaDePeliculas(boolean developerMode) {
         this.developerMode = developerMode;
         try{
-            InputStream direccionArchivoDatos = CargaDePeliculas.class.getResourceAsStream("/movies_metadata.csv");
-            assert direccionArchivoDatos != null;
-            this.lectorCSV = new CSVReader(new InputStreamReader(direccionArchivoDatos));
+            FileInputStream archivoCSV = new FileInputStream("movies_metadata.csv");
+            this.lectorCSV = new CSVReader(new InputStreamReader(archivoCSV));
             lectorCSV.readNext(); // Se lee la primera línea (cabecera) y se descarta
-        } catch (IOException | CsvValidationException ignored) { //No deberia de ocurrir, pero si ocurre, se imprime el error
-            System.out.println("Error critico al cargar el archivo de peliculas. Asegurese de que el archivo movies_metadata.csv se encuentre en la carpeta resources del proyecto.");
+        } catch (IOException | CsvValidationException e) {
+            System.out.println("Error critico al cargar el archivo de peliculas. Asegurese de que el archivo movies_metadata.csv se encuentre en la raiz del proyecto.");
+            System.out.println("Error detallado: " + e.getMessage());
         }
 
         this.peliculas = new MyHashImplCloseLineal<>(59999);
@@ -47,8 +47,8 @@ public class CargaDePeliculas {
 
         try{
             cargarDatos();
-        } catch (IOException | CsvValidationException ignored) {
-            System.out.println("Error al cargar los datos de las peliculas"); // No deberia de ocurrir, pero si ocurre, se imprime el error
+        } catch (IOException | CsvValidationException e) {
+            System.out.println("Error al cargar los datos de las peliculas: " + e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class CargaDePeliculas {
                 }
             }
 
-            Coleccion coleccion = searchColecciones(dataLine[1]);
+            Coleccion coleccion = searchColecciones(dataLine[1], idPelicula, dataLine[8]);
             if (coleccion != null){
                 try {
                     colecciones.insert(coleccion.getId(), coleccion);
@@ -141,7 +141,7 @@ public class CargaDePeliculas {
             return listaGeneros;
         }
 
-        Matcher matcher = patternGenero.matcher(entrada);
+        Matcher matcher = PATTERNGENERO.matcher(entrada);
         while (matcher.find()) {
             try {
                 int id = Integer.parseInt(matcher.group(1));
@@ -153,12 +153,14 @@ public class CargaDePeliculas {
 
     }
 
-    private Coleccion searchColecciones(String entrada){
-        if (entrada == null || entrada.trim().isEmpty()) {
+    private Coleccion searchColecciones(String entrada, int idPelicula, String nombrePelicula){
+        if (entrada == null) {
             return null;
+        } else if (entrada.trim().isEmpty()) {
+            return new Coleccion(idPelicula, nombrePelicula);
         }
 
-        Matcher matcher = patternColeccion.matcher(entrada);
+        Matcher matcher = PATTERNCOLECCION.matcher(entrada);
         if (matcher.find()){
             try {
                 int id = Integer.parseInt(matcher.group(1));

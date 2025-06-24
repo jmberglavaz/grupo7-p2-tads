@@ -9,10 +9,7 @@ import um.edu.uy.entities.Actor;
 import um.edu.uy.entities.Director;
 import um.edu.uy.entities.Pelicula;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class CargaDeStaff {
     private CSVReader lectorCSV;
@@ -30,10 +27,8 @@ public class CargaDeStaff {
         this.actores = new MyHashImplCloseLineal<>(59999);
 
         try {
-            InputStream direccionArchivoDatos = CargaDeStaff.class.getResourceAsStream("/credits.csv");
-            assert direccionArchivoDatos != null;
-            BufferedReader bufferLectura = new BufferedReader(new InputStreamReader(direccionArchivoDatos));
-            this.lectorCSV = new CSVReader(bufferLectura);
+            FileInputStream archivoCSV = new FileInputStream("credits.csv");
+            this.lectorCSV = new CSVReader(new InputStreamReader(archivoCSV));
             this.lectorCSV.readNext(); // Se lee la primera línea (cabecera) y se descarta
         } catch (IOException | CsvValidationException ignored) { //No deberia de ocurrir, pero si ocurre, se imprime el error
             System.out.println("Error crítico al cargar el archivo de créditos. Asegúrese de que el archivo credits.csv se encuentre en la carpeta resources del proyecto.");

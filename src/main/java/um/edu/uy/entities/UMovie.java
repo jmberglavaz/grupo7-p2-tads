@@ -22,49 +22,22 @@ public class UMovie {
         return peliculas;
     }
 
-    String menuPrincipal =
-            """
-                    Seleccione una opción:
-                    1. Carga de Datos
-                    2. Ejecutar Consultas
-                    3. Salir
-                    """;
-
-    String menuConsultas =
-            """
-                    Menú de opciones
-                    1. Top 5 de las películas que más calificaciones por idioma
-                    2. Top 10 de las películas que mejor calificación media tienen por parte de los usuarios
-                    3. Top 5 de las colecciones que más ingresos generaron
-                    4. Top 10 de los directores que mejor calificación tienen
-                    5. Actor con más calificaciones recibidas en cada mes del año
-                    6. Usuarios con más calificaciones por género
-                    7. Salir
-                    Elija una opción(1-7):\s""";
-
-    String errorPrincipal =
-            """
-                                      ERROR:
-                    Opción no válida, ingrese un número entre 1 y 3.
-                    """;
-
-    String errorConsultas =
-            """
-                                      ERROR:
-                    Opción no válida, ingrese un número entre 1 y 7.
-                    """;
-
     public void iniciar() {
         boolean encendido = true;
 
         while (encendido) {
-            System.out.println(menuPrincipal);
+            System.out.println("""
+                    Seleccione una opción:
+                    1. Carga de Datos
+                    2. Ejecutar Consultas
+                    3. Salir
+                    """);
             Scanner scanner = new Scanner(System.in);
             try {
                 int opcion = scanner.nextInt();
                 encendido = verificarOpcionPrincipal(opcion);
             } catch (InputMismatchException e){
-                System.out.println(errorPrincipal);
+                System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 3.");
             }
         }
     }
@@ -92,7 +65,7 @@ public class UMovie {
                     datosCargados = true;
                 }
             }
-            default -> System.out.println(errorPrincipal);
+            default -> System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 3.");
         }
         return true;
     }
@@ -101,13 +74,22 @@ public class UMovie {
         boolean encendido = true;
 
         while (encendido) {
-            System.out.println(menuConsultas);
+            System.out.println("""
+                    Menú de opciones
+                    1. Top 5 de las películas que más calificaciones por idioma
+                    2. Top 10 de las películas que mejor calificación media tienen por parte de los usuarios
+                    3. Top 5 de las colecciones que más ingresos generaron
+                    4. Top 10 de los directores que mejor calificación tienen
+                    5. Actor con más calificaciones recibidas en cada mes del año
+                    6. Usuarios con más calificaciones por género
+                    7. Salir
+                    Elija una opción(1-7):\s""");
             Scanner scanner = new Scanner(System.in);
             try {
                 int opcion = scanner.nextInt();
                 encendido = verificarOpcionConsultas(opcion);
             } catch (InputMismatchException e){
-                System.out.println(errorConsultas);
+                System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 7.");
             }
         }
     }
@@ -124,7 +106,7 @@ public class UMovie {
                 System.out.println("Volviendo atras...");
                 return false;
             }
-            default -> System.out.println(errorConsultas);
+            default -> System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 7.");
         }
         return true;
     }
