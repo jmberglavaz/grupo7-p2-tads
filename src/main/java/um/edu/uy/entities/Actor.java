@@ -35,6 +35,24 @@ public class Actor {
         return cantidadEvaluacionesEnMes;
     }
 
+
+    public int[] getStatsForMonth(int mes) {
+        if (mes < 1 || mes > 12) {
+            throw new IllegalArgumentException("El mes debe estar entre 1 y 12.");
+        }
+        int ratingCount = 0;
+        int movieCount = 0;
+        for (Pelicula pelicula : peliculas) {
+            int movieRatingsInMonth = pelicula.getListaEvaluacionesEnMes(mes).size();
+            if (movieRatingsInMonth > 0) {
+                ratingCount += movieRatingsInMonth;
+                movieCount++;
+            }
+        }
+        return new int[]{ratingCount, movieCount};
+    }
+
+
     public int getCantidadPeliculasActor() {
         return peliculas.size();
     }

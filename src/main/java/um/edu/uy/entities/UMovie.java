@@ -1,6 +1,9 @@
 package um.edu.uy.entities;
 
-import um.edu.uy.Sistema.*;
+import um.edu.uy.Sistema.CargaDeDatos.CargaDeEvaluaciones;
+import um.edu.uy.Sistema.CargaDeDatos.CargaDePeliculas;
+import um.edu.uy.Sistema.CargaDeDatos.CargaDeStaff;
+import um.edu.uy.Sistema.Consultas.*;
 import um.edu.uy.TADs.Hash.MyHash;
 
 import java.util.InputMismatchException;
@@ -16,13 +19,6 @@ public class UMovie {
     private boolean datosCargados = false;
 
     public UMovie() {
-    }
-
-    public MyHash<Integer, Pelicula> getCatalogoDePeliculas() {
-        return peliculas;
-    }
-
-    public void iniciar() {
         boolean encendido = true;
 
         while (encendido) {
@@ -41,8 +37,6 @@ public class UMovie {
             }
         }
     }
-
-    public int cantPeliculas(){return peliculas.size();}
 
     private boolean verificarOpcionPrincipal(int opcion){
         switch (opcion) {
