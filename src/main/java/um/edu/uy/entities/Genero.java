@@ -1,8 +1,5 @@
 package um.edu.uy.entities;
 
-import um.edu.uy.TADs.Hash.MyHash;
-import um.edu.uy.TADs.Hash.MyHashImplCloseLineal;
-import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.List.MyArrayListImpl;
 import um.edu.uy.TADs.List.MyList;
 

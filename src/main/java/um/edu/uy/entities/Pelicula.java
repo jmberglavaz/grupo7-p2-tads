@@ -9,7 +9,7 @@ public class Pelicula implements Comparable<Pelicula>{
     private String titulo;
     private String fechaDeEstreno;
     private long ingresos;
-    private MyList<MyList<Evaluacion>> listaEvaluaciones;
+    private final MyList<MyList<Evaluacion>> listaEvaluaciones;
     private MyList<String> listaDeActores;
 
     public Pelicula(int id, String titulo, String fechaDeEstreno, long ingresos) {

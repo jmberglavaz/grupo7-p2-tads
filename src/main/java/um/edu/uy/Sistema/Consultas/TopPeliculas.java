@@ -1,4 +1,4 @@
-package um.edu.uy.Sistema;
+package um.edu.uy.Sistema.Consultas;
 
 import um.edu.uy.TADs.HeapKT.HeapNode;
 import um.edu.uy.TADs.HeapKT.MyHeapKT;
