@@ -4,9 +4,9 @@ package um.edu.uy.entities;
 import java.util.Date;
 
 public class Evaluacion {
-    private int idUsuario;
+    private Integer idUsuario;
     private float calificacion;
-    private int fechaMes;
+    private Integer fechaMes;
 
     public Evaluacion(int idUsuario, float calificacion, Date fechaMes) {
         this.idUsuario = idUsuario;
