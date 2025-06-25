@@ -5,10 +5,12 @@ import um.edu.uy.TADs.List.MyList;
 
 public class Actor {
     private String nombre;
+    private int id;
     private final MyList<Pelicula> peliculas;
 
-    public Actor(String nombre) {
+    public Actor(int id, String nombre) {
         this.nombre = nombre;
+        this.id = id;
         this.peliculas = new MyLinkedListImpl<>();
     }
     public String getNombre() {

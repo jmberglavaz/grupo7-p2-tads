@@ -1,6 +1,7 @@
 package um.edu.uy.TADs.Hash;
 
 import um.edu.uy.Exceptions.ElementAlreadyExist;
+import um.edu.uy.TADs.List.MyList;
 
 public interface MyHash<K,T> extends Iterable<T>{
     void insert(K clave, T data) throws ElementAlreadyExist;
@@ -11,4 +12,5 @@ public interface MyHash<K,T> extends Iterable<T>{
     T obtain(int index);
     void changeValue(K clave, T newData);
     void clean();
+    MyList<T> getValues();
 }

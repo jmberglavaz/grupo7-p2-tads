@@ -10,16 +10,14 @@ import um.edu.uy.entities.Director;
 import um.edu.uy.entities.Pelicula;
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CargaDeStaff {
     private CSVReader lectorCSV;
     private final boolean developerMode; // Si se quiere usar el modo desarrollador, se puede cambiar a true para imprimir mas detalles
     private final MyHash<String, Director> directores;
-    private final MyHash<String, Actor> actores;
-
-    private static final String TRABAJO_DIRECTOR = "'job': 'Director'";
-    private static final String CLAVE_NOMBRE = "'name': '";
-    private static final String CLAVE_NOMBRE_ACTOR = "'name': '"; //Se usa una distinta respecto a director por formatos distintos
+    private final MyHash<Integer, Actor> actores;
 
     public CargaDeStaff(boolean developerMode) {
         this.developerMode = developerMode;
@@ -37,7 +35,6 @@ public class CargaDeStaff {
 
     public void cargarDatos(MyHash<Integer, Pelicula> listaDePeiculas) throws CsvValidationException, IOException {
         long inicio = developerMode ? System.currentTimeMillis() : 0;
-
         System.out.println("Iniciando carga de créditos...");
 
         String[] dataLine;
@@ -52,11 +49,12 @@ public class CargaDeStaff {
             }
 
             Pelicula pelicula = listaDePeiculas.get(idPelicula);
-            if (pelicula == null) continue;
+            if (pelicula == null) {continue;}
 
             String actoresRaw = dataLine[0];
             if (actoresRaw != null && !actoresRaw.isEmpty()) {
                 procesarActores(actoresRaw, pelicula);
+
             }
 
             String equipoRaw = dataLine[1];
@@ -74,63 +72,148 @@ public class CargaDeStaff {
         return directores;
     }
 
-    public MyHash<String, Actor> getActores() {
+    public MyHash<Integer, Actor> getActores() {
         return actores;
     }
 
     private void procesarActores(String entrada, Pelicula tempPeli) {
+        String claveNombre = "'name': '";
+        String claveNombreComillas = "'name': \"";
+        String claveId = "'id': ";
         int posicionInicial = 0;
         int longitud = entrada.length();
-        MyHash<String, Boolean> actoresVistos = new MyHashImplCloseLineal<>(100);
 
         while (posicionInicial < longitud) {
-            int inicioNombre = entrada.indexOf(CLAVE_NOMBRE_ACTOR, posicionInicial);
-            if (inicioNombre == -1) break;
+            int posId = entrada.indexOf(claveId, posicionInicial);
+            if (posId == -1) break;
 
-            inicioNombre += CLAVE_NOMBRE_ACTOR.length();
-            int finNombre = entrada.indexOf("'", inicioNombre);
+            int inicioId = posId + claveId.length();
 
-            if (finNombre == -1 || finNombre <= inicioNombre) {
-                posicionInicial = inicioNombre;
+            int finId = entrada.indexOf(",", inicioId);
+
+            if (finId == -1) {
+                posicionInicial = posId + claveId.length();
                 continue;
             }
 
-            String nombreActor = entrada.substring(inicioNombre, finNombre); // Extraigo el nombre del actor
+            String idStr = entrada.substring(inicioId, finId).trim();
+            int idActor;
+            try {
+                idActor = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                System.out.println(idStr);
 
-            if (nombreActor.length() >= 3 && actoresVistos.get(nombreActor) == null) {
-                try {
-                    actoresVistos.insert(nombreActor, true);
-                    Actor actor = actores.get(nombreActor);
-                    if (actor == null) {
-                        actor = new Actor(nombreActor);
-                        actores.insert(nombreActor, actor);
-                    }
-                    actor.agregarPelicula(tempPeli);
-                } catch (ElementAlreadyExist ignored) {}
+                posicionInicial = posId + claveId.length();
+                continue;
             }
 
-            posicionInicial = finNombre + 1;
+            int posNombre = entrada.indexOf(claveNombre, finId);
+            int posNombreComillas = entrada.indexOf(claveNombreComillas, finId);
+
+            boolean tieneComillasEnNombre = false;
+            int inicioNombre;
+
+            if (posNombre == -1 && posNombreComillas == -1) {
+                posicionInicial = posId + claveId.length();
+                continue;
+            } else if (posNombre == -1) {
+                tieneComillasEnNombre = true;
+                inicioNombre = posNombreComillas + claveNombreComillas.length();
+            } else if (posNombreComillas == -1) {
+                tieneComillasEnNombre = false;
+                inicioNombre = posNombre + claveNombre.length();
+            } else {
+                if (posNombre < posNombreComillas) {
+                    tieneComillasEnNombre = false;
+                    inicioNombre = posNombre + claveNombre.length();
+                } else {
+                    tieneComillasEnNombre = true;
+                    inicioNombre = posNombreComillas + claveNombreComillas.length();
+                }
+            }
+
+            int finNombre;
+            if (tieneComillasEnNombre) {
+                finNombre = entrada.indexOf("\"", inicioNombre);
+            } else {
+                finNombre = entrada.indexOf("'", inicioNombre);
+            }
+
+            if (finNombre == -1) {
+                posicionInicial = posId + claveId.length();
+                continue;
+            }
+
+            String nombreActor = entrada.substring(inicioNombre, finNombre);
+
+            try {
+                Actor actor = actores.get(idActor);
+                if (actor == null) {
+                    actor = new Actor(idActor, nombreActor);
+                    Pattern pattern = Pattern.compile("[^a-zA-Z\\s]");
+                    Matcher matcher = pattern.matcher(nombreActor);
+                    if (matcher.find()){
+                        System.out.println(nombreActor + " - " + idActor);
+                    }
+                    actores.insert(idActor, actor);
+
+                }
+                actor.agregarPelicula(tempPeli);
+            } catch (ElementAlreadyExist ignored) {
+                Actor actor = actores.get(idActor);
+                if (actor != null) {
+                    actor.agregarPelicula(tempPeli);
+                }
+            }
+            posicionInicial = posId + claveId.length();
         }
     }
 
     private void procesarDirectores(String entrada, Pelicula tempPeli) {
+        String trabajoDirector = "'job': 'Director'";
+        String claveNombre = "'name': '";
+        String claveNombreComillas = "'name': \"";
         int posicionInicial = 0;
         int longitud = entrada.length();
 
         while (posicionInicial < longitud) {
-            int posDirector = entrada.indexOf(TRABAJO_DIRECTOR, posicionInicial);
+            int posDirector = entrada.indexOf(trabajoDirector, posicionInicial);
             if (posDirector == -1) break;
 
-            int posNombre = entrada.indexOf(CLAVE_NOMBRE, posDirector);
-            if (posNombre == -1) {
-                posicionInicial = posDirector + TRABAJO_DIRECTOR.length();
+            int posNombre = entrada.indexOf(claveNombre, posDirector);
+            int posNombreComillas = entrada.indexOf(claveNombreComillas, posDirector);
+
+            boolean tieneComillasEnNombre = false;
+            int inicioNombre;
+
+            if (posNombre == -1 && posNombreComillas == -1) {
+                posicionInicial = posDirector + trabajoDirector.length();
                 continue;
+            } else if (posNombre == -1) {
+                tieneComillasEnNombre = true;
+                inicioNombre = posNombreComillas + claveNombreComillas.length();
+            } else if (posNombreComillas == -1) {
+                tieneComillasEnNombre = false;
+                inicioNombre = posNombre + claveNombre.length();
+            } else {
+                if (posNombre < posNombreComillas) {
+                    tieneComillasEnNombre = false;
+                    inicioNombre = posNombre + claveNombre.length();
+                } else {
+                    tieneComillasEnNombre = true;
+                    inicioNombre = posNombreComillas + claveNombreComillas.length();
+                }
             }
 
-            int inicioNombre = posNombre + CLAVE_NOMBRE.length();
-            int finNombre = entrada.indexOf("'", inicioNombre);
+            int finNombre;
+            if (tieneComillasEnNombre) {
+                finNombre = entrada.indexOf("\"", inicioNombre);
+            } else {
+                finNombre = entrada.indexOf("'", inicioNombre);
+            }
+
             if (finNombre == -1) {
-                posicionInicial = posDirector + TRABAJO_DIRECTOR.length();
+                posicionInicial = posDirector + trabajoDirector.length();
                 continue;
             }
 
@@ -147,7 +230,7 @@ public class CargaDeStaff {
                 }
             }
 
-            posicionInicial = posDirector + TRABAJO_DIRECTOR.length();
+            posicionInicial = posDirector + trabajoDirector.length();
         }
     }
 

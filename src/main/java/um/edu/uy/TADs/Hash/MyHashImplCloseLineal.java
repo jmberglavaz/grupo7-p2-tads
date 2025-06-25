@@ -2,6 +2,8 @@ package um.edu.uy.TADs.Hash;
 
 import um.edu.uy.Exceptions.ElementAlreadyExist;
 import um.edu.uy.Exceptions.ValueNoExist;
+import um.edu.uy.TADs.List.MyArrayListImpl;
+import um.edu.uy.TADs.List.MyList;
 
 import java.util.Iterator;
 
@@ -129,6 +131,17 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
         table[index].setData(newData);
     }
 
+    @Override
+    public MyList<T> getValues(){
+        MyList<T> arrayResult = new MyArrayListImpl<>(size);
+        for (HashNode<K, T> hashNode : table) {
+            if (hashNode != null) {
+                arrayResult.add(hashNode.getData());
+            }
+        }
+        return arrayResult;
+    }
+
     private boolean isPrime(int number) {
         if (number < 2) return false;
         if (number == 2) return true;
@@ -171,6 +184,8 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
         hash ^= (hash >>> 16);
         return Math.abs(hash) % capacity;
     }
+
+
 
     @Override
     public Iterator<T> iterator() {

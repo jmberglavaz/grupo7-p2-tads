@@ -4,12 +4,13 @@ import um.edu.uy.TADs.Hash.MyHash;
 import um.edu.uy.TADs.HeapKT.HeapNode;
 import um.edu.uy.TADs.HeapKT.MyHeapKT;
 import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
+import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Actor;
 import um.edu.uy.entities.Pelicula;
 
 public class TopActorPorMes {
 
-    public static void realizarConsulta(MyHash<Integer, Pelicula> listaPeliculas, MyHash<String, Actor> listaActores) {
+    public static void realizarConsulta(MyHash<Integer, Pelicula> listaPeliculas, MyHash<Integer, Actor> almacenActores) {
         long inicio = System.currentTimeMillis();
 
         MyHeapKT<Integer, Actor> actoresPorRatingEnero = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
@@ -25,6 +26,8 @@ public class TopActorPorMes {
         MyHeapKT<Integer, Actor> actoresPorRatingNoviembre = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
         MyHeapKT<Integer, Actor> actoresPorRatingDiciembre = new MyHeapKTImplementation<>(listaPeliculas.size() / 12, false);
 
+
+        MyList<Actor> listaActores = almacenActores.getValues();
         for (Actor actor : listaActores) {
             // Agrego el actor a cada heap de mes usando la cantidad de evaluaciones en el mes como key
             if (actor != null) {

@@ -7,15 +7,19 @@ import um.edu.uy.TADs.Hash.MyPrimitiveIntHash;
 import um.edu.uy.TADs.Hash.MyPrimitiveIntHashImpl; // Asumimos que la implementación está en este archivo
 import um.edu.uy.TADs.HeapKT.MyHeapKT;
 import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
+import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Evaluacion;
 import um.edu.uy.entities.Genero;
 import um.edu.uy.entities.Pelicula;
 
 public class TopUsuarioPorGenero {
 
-    public static void realizarConsulta(MyHash<Integer, Genero> listaDeGeneros) {
+    public static void realizarConsulta(MyHash<Integer, Genero> almacenDeGeneros) {
         long inicio = System.currentTimeMillis();
+        MyList<Genero> listaDeGeneros = almacenDeGeneros.getValues();
+
         MyHeapKT<Integer, Genero> tempHeap = new MyHeapKTImplementation<>(listaDeGeneros.size(), false);
+
 
         for (Genero generoActual : listaDeGeneros) {
             if (generoActual != null) {
