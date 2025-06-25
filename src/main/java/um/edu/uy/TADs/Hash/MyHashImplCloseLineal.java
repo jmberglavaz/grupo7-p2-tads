@@ -171,46 +171,6 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
         hash ^= (hash >>> 16);
         return Math.abs(hash) % capacity;
     }
-    // Devolper method
-
-    public void printStats() {
-        System.out.println("Hash Table Stats:");
-        System.out.println("  Tamano: " + size);
-        System.out.println("  Capacidad: " + capacity);
-        System.out.println("  Factor de Carga: " + String.format("%.2f", (double) size / capacity));
-
-        int maxProbes = 0;
-        int totalProbes = 0;
-        int usedSlots = 0;
-
-        for (int i = 0; i < capacity; i++) {
-            if (table[i] != null && table[i] != deleteNode) {
-                usedSlots++;
-                int probes = calculateProbes(table[i].getKey());
-                totalProbes += probes;
-                maxProbes = Math.max(maxProbes, probes);
-            }
-        }
-
-        if (usedSlots > 0) {
-            System.out.println("  Average probes: " + String.format("%.2f", (double) totalProbes / usedSlots));
-            System.out.println("  Max probes: " + maxProbes);
-        }
-        System.out.println("\n");
-    }
-
-
-    private int calculateProbes(K key) {
-        int index = hash(key);
-        int probes = 1;
-
-        while (table[index] != null && !table[index].getKey().equals(key)) {
-            index = (index + 1) % capacity;
-            probes++;
-        }
-
-        return probes;
-    }
 
     @Override
     public Iterator<T> iterator() {

@@ -1,4 +1,4 @@
-package um.edu.uy.Sistema;
+package um.edu.uy.Sistema.Consultas;
 
 import um.edu.uy.Exceptions.EmptyHeapException;
 import um.edu.uy.TADs.Hash.MyHash;
