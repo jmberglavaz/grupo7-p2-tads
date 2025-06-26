@@ -1,10 +1,6 @@
 package um.edu.uy.Sistema.Consultas;
 
 import um.edu.uy.TADs.Hash.MyHash;
-import um.edu.uy.TADs.HeapKT.HeapNode;
-import um.edu.uy.TADs.HeapKT.MyHeapKT;
-import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
-import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Actor;
 import um.edu.uy.entities.Pelicula;
 
@@ -81,17 +77,18 @@ public class TopActorPorMes {
 //        return "No hay actores en este mes";
 //    }
 
-    public static void realizarConsultav3(MyHash<Integer, Pelicula> listaPeliculas, MyHash<String, Actor> listaActores) {
+    public static void realizarConsultav3(MyHash<Integer, Pelicula> listaPeliculas, MyHash<Integer, Actor> listaActores) {
+        long inicio = System.currentTimeMillis();
         Actor[] actoresMayorCantEvaluaciones = new Actor[12];
 
         for (Actor actor : listaActores) {
             if (actor != null) {
                 for (int mesActor = 1; mesActor <= 12; mesActor++) {
-                    if (actoresMayorCantEvaluaciones[mesActor] == null) {
-                        actoresMayorCantEvaluaciones[mesActor] = actor;
+                    if (actoresMayorCantEvaluaciones[mesActor-1] == null) {
+                        actoresMayorCantEvaluaciones[mesActor-1] = actor;
                     } else {
-                        if (actoresMayorCantEvaluaciones[mesActor].compararCalificaciones(actor, mesActor) < 0) {
-                            actoresMayorCantEvaluaciones[mesActor] = actor;
+                        if (actoresMayorCantEvaluaciones[mesActor-1].compararCalificaciones(actor, mesActor) < 0) {
+                            actoresMayorCantEvaluaciones[mesActor-1] = actor;
                         }
                     }
                 }
@@ -101,6 +98,8 @@ public class TopActorPorMes {
         for (int mes = 1; mes < actoresMayorCantEvaluaciones.length; mes++) {
             System.out.println(imprimirActorv2(actoresMayorCantEvaluaciones[mes - 1], mes));
         }
+        long fin = System.currentTimeMillis();
+        System.out.println("Tiempo de ejecución de la consulta: " + (fin - inicio) + " ms");
     }
     private static String imprimirActorv2(Actor actor, int mes) {
         String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"};
