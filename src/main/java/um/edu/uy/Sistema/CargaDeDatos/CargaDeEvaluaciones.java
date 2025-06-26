@@ -31,7 +31,7 @@ public class CargaDeEvaluaciones {
         System.out.println("Iniciando carga de evaluaciones...");
 
         while ((lineaDatos = lectorCSV.readNext()) != null) {
-            int idUsuario;
+            Integer idUsuario;
             Date fecha;
             int idPelicula;
             float calificacion;

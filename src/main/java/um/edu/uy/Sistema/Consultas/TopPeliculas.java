@@ -4,23 +4,24 @@ import um.edu.uy.TADs.HeapKT.HeapNode;
 import um.edu.uy.TADs.HeapKT.MyHeapKT;
 import um.edu.uy.TADs.HeapKT.MyHeapKTImplementation;
 import um.edu.uy.TADs.Hash.MyHash;
+import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Pelicula;
 
 
 public class TopPeliculas {
     // Top 10 de las películas que mejor calificación media tienen por parte de los usuarios, considerando solo las películas con mas de 100 calificaciones
 
-    public static void realizarConsulta(MyHash<Integer, Pelicula> listaPeliculas) {
+    public static void realizarConsulta(MyHash<Integer, Pelicula> almacenlistaPeliculas) {
         long inicio = System.currentTimeMillis();
+
+        MyList<Pelicula> listaPeliculas = almacenlistaPeliculas.getValues();
         MyHeapKT<Float, Pelicula> peliculasPorCalificacionMedia = new MyHeapKTImplementation<>(listaPeliculas.size(), false);
 
         // Agrego películas:
         for (Pelicula pelicula : listaPeliculas) {
-            if (pelicula != null) {
-                if (pelicula.getCantidadEvaluaciones() > 100) {
+            if (pelicula != null && pelicula.getCantidadEvaluaciones() > 100) {
                     // agrego al heap con promedio de evaluaciones como clave
                     peliculasPorCalificacionMedia.insert(pelicula.getPromedioDeEvaluaciones(), pelicula);
-                }
             }
         }
         // Saco las 10 más altas del heap:
@@ -46,4 +47,6 @@ public class TopPeliculas {
         //<id_pelicula>, <titulo_pelicula>, <calificacion_media>
 
     }
+
+
 }

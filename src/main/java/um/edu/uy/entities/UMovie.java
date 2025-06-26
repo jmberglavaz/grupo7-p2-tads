@@ -10,15 +10,18 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class UMovie {
-    private MyHash<Integer, Pelicula> peliculas;
-    private MyHash<Integer, Genero> generos;
-    private MyHash<Integer, Coleccion> colecciones;
-    private MyHash<String, Idioma> idiomas;
-    private MyHash<String,Director> directores;
-    private MyHash<String, Actor> actores;
-    private boolean datosCargados = false;
+    private static MyHash<Integer, Pelicula> peliculas;
+    private static MyHash<Integer, Genero> generos;
+    private static MyHash<Integer, Coleccion> colecciones;
+    private static MyHash<String, Idioma> idiomas;
+    private static MyHash<String,Director> directores;
+    private static MyHash<Integer, Actor> actores;
+    private static boolean datosCargados = false;
 
     public UMovie() {
+    }
+
+    public static void iniciar(){
         boolean encendido = true;
 
         while (encendido) {
@@ -38,7 +41,8 @@ public class UMovie {
         }
     }
 
-    private boolean verificarOpcionPrincipal(int opcion){
+
+    private static boolean verificarOpcionPrincipal(int opcion){
         switch (opcion) {
             case 1 -> {
                 if(!datosCargados){
@@ -64,7 +68,7 @@ public class UMovie {
         return true;
     }
 
-    private void iniciarMenuConsultas(){
+    private static void iniciarMenuConsultas(){
         boolean encendido = true;
 
         while (encendido) {
@@ -88,7 +92,7 @@ public class UMovie {
         }
     }
 
-    private boolean verificarOpcionConsultas(int opcion){
+    private static boolean verificarOpcionConsultas(int opcion){
         switch (opcion) {
             case 1 -> TopPeliculasPorIdioma.realizarConsulta(idiomas);
             case 2 -> TopPeliculas.realizarConsulta(peliculas);
@@ -105,20 +109,20 @@ public class UMovie {
         return true;
     }
 
-    private void cargarDatos() {
+    private static void cargarDatos() {
         cargarDatos(false);
     }
 
-    private void cargarDatos(boolean DeveloperMode) {
+    private static void cargarDatos(boolean DeveloperMode) {
         long inicio = DeveloperMode ? System.currentTimeMillis() : 0;
         CargaDePeliculas cargaPeliculas = new CargaDePeliculas(DeveloperMode);
         CargaDeEvaluaciones cargaEvaluaciones = new CargaDeEvaluaciones(DeveloperMode);
         CargaDeStaff cargaDeStaff = new CargaDeStaff(DeveloperMode);
 
-        this.peliculas = cargaPeliculas.getPeliculas();
-        this.generos = cargaPeliculas.getGeneros();
-        this.idiomas = cargaPeliculas.getIdiomas();
-        this.colecciones = cargaPeliculas.getColecciones();
+        peliculas = cargaPeliculas.getPeliculas();
+        generos = cargaPeliculas.getGeneros();
+        idiomas = cargaPeliculas.getIdiomas();
+        colecciones = cargaPeliculas.getColecciones();
         System.out.println("Carga de peliculas completada");
 
         try {
@@ -128,8 +132,8 @@ public class UMovie {
 
         try {
             cargaDeStaff.cargarDatos(peliculas);
-            this.directores = cargaDeStaff.getDirectores();
-            this.actores = cargaDeStaff.getActores();
+            directores = cargaDeStaff.getDirectores();
+            actores = cargaDeStaff.getActores();
         } catch (Exception ignored) {}
         System.out.println("Carga de creditos completada.");
 

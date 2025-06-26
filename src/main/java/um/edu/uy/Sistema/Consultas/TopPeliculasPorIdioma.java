@@ -12,6 +12,7 @@ public class TopPeliculasPorIdioma {
 
     public static void realizarConsulta(MyHash<String, Idioma> listaDeIdiomas) {
         long inicio = System.currentTimeMillis();
+
         for (int iter = 0; iter < idiomas.length; iter++) {
             String idioma = idiomas[iter];
             String nombreIdioma = nombresIdiomas[iter];
