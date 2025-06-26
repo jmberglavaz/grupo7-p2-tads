@@ -38,4 +38,13 @@ public class Actor {
     public int getCantidadPeliculasActor() {
         return peliculas.size();
     }
+
+    public int compararCalificaciones(Actor otroActor, int nroMes) {
+        if (this.getCantidadEvaluacionesActorPorMes(nroMes) == otroActor.getCantidadEvaluacionesActorPorMes(nroMes)) {
+            return 0;
+        } else if (this.getCantidadEvaluacionesActorPorMes(nroMes) < otroActor.getCantidadEvaluacionesActorPorMes(nroMes)) {
+            return -1;
+        }
+        return 1;
+    }
 }
