@@ -30,9 +30,9 @@ class DirectorTest {
         pelicula1.addReview(createRealEvaluation(2.0f));
         pelicula1.addReview(createRealEvaluation(5.0f));
         pelicula1.addReview(createRealEvaluation(4.0f));
-        director.agregarPelicula(pelicula1);
+        director.addMovie(pelicula1);
 
-        float mediana = director.obtainMedian();
+        float mediana = director.getRatingMedian();
 
         assertEquals(4.0f, mediana);
     }
@@ -44,10 +44,10 @@ class DirectorTest {
         pelicula1.addReview(createRealEvaluation(5.0f));
         pelicula2.addReview(createRealEvaluation(4.0f));
         pelicula2.addReview(createRealEvaluation(3.0f));
-        director.agregarPelicula(pelicula1);
-        director.agregarPelicula(pelicula2);
+        director.addMovie(pelicula1);
+        director.addMovie(pelicula2);
 
-        float mediana = director.obtainMedian();
+        float mediana = director.getRatingMedian();
 
         assertEquals(3.5f, mediana);
     }
@@ -55,8 +55,8 @@ class DirectorTest {
     @Test
     void testObtainMedian_NoRatings_ThrowsException() {
         // El director tiene una película pero sin evaluaciones
-        director.agregarPelicula(pelicula1);
+        director.addMovie(pelicula1);
 
-        assertThrows(ListOutOfIndexException.class, () -> {director.obtainMedian();});
+        assertThrows(ListOutOfIndexException.class, () -> {director.getRatingMedian();});
     }
 }

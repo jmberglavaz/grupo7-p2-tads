@@ -42,8 +42,8 @@ public class TopSagaConMayorIngresos {
             for (int i = 0; i < topCollection.getMovieCount(); i++) {
                 movieIds.add(String.valueOf(topCollection.getMovieList().get(i).getId()));
             }
-            System.out.println(topCollection.getId() + ", " + topCollection.getTitle() + ", " + topCollection.getMovieCount() + ", [" + movieIds.toString() + "]" + totalRevenue);
+            System.out.println(topCollection.getId() + ", " + topCollection.getTitle() + ", " + topCollection.getMovieCount() + ", [" + movieIds.toString() + "], " + totalRevenue);
         }
-        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime));
+        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

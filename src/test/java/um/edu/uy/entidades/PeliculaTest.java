@@ -28,14 +28,14 @@ class PeliculaTest {
         pelicula.addReview(evaluacion2);
         pelicula.addReview(evaluacion3);
 
-        int cantidad = pelicula.getCantidadEvaluaciones();
+        int cantidad = pelicula.getTotalReviewCount();
 
         assertEquals(3, cantidad);
     }
 
     @Test
     void testGetCantidadEvaluaciones_NoEvaluations() {
-        int cantidad = pelicula.getCantidadEvaluaciones();
+        int cantidad = pelicula.getTotalReviewCount();
 
         assertEquals(0, cantidad);
     }
@@ -72,9 +72,9 @@ class PeliculaTest {
         pelicula.addReview(evalEnero2);
         pelicula.addReview(evalMarzo);
 
-        MyList<Evaluacion> evalsEnero = pelicula.getListaEvaluacionesEnMes(1);
-        MyList<Evaluacion> evalsFebrero = pelicula.getListaEvaluacionesEnMes(2);
-        MyList<Evaluacion> evalsMarzo = pelicula.getListaEvaluacionesEnMes(3);
+        MyList<Evaluacion> evalsEnero = pelicula.getReviewsForMonth(1);
+        MyList<Evaluacion> evalsFebrero = pelicula.getReviewsForMonth(2);
+        MyList<Evaluacion> evalsMarzo = pelicula.getReviewsForMonth(3);
 
         assertEquals(2, evalsEnero.size());
         assertEquals(0, evalsFebrero.size());

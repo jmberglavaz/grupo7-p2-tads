@@ -60,7 +60,7 @@ public class UMovie {
                     long startTime = System.currentTimeMillis();
                     cargarDatos(false); // Carga en modo normal
                     long endTime = System.currentTimeMillis();
-                    System.out.println("Carga de datos exitosa, tiempo de ejecucion de la carga: " + (endTime - startTime));
+                    System.out.println("Carga de datos exitosa, tiempo de ejecución de la carga: " + (endTime - startTime) + " ms");
                     dataLoaded = true;
                 } else {
                     System.out.println("\nAVISO: Los datos ya han sido cargados previamente.");

@@ -7,60 +7,85 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GeneroTest {
+    private Genero accion;
+    private Genero aventura;
+    private Genero animacion;
+    private Genero biografia;
 
-    private Genero genero;
+    private Pelicula pelicula1;
+    private Pelicula pelicula2;
+    private Pelicula pelicula3;
+    private Pelicula pelicula4;
+    private Pelicula pelicula5;
 
     @BeforeEach
     void setUp() {
-        genero = new Genero(28, "Acción");
-    }
+        accion = new Genero(1, "Acción");
+        aventura = new Genero(2, "Aventura");
+        animacion = new Genero(3, "Animación");
+        biografia = new Genero(4, "Biografía");
 
-    // Metodo auxiliar para crear una evaluacion con un id especifico y resto de datos irrelevantes
-    private Evaluacion createRealEvaluation(int userId) {
-        return new Evaluacion(userId, 4.0f, new Date());
-    }
-
-    @Test
-    void testTopUsuario_FindsCorrectUser() {
-        Pelicula peli1 = new Pelicula(1, "Peli 1", "", 0);
-        Pelicula peli2 = new Pelicula(2, "Peli 2", "", 0);
-
-        // Usuario 101 hace 3 reviews
-        peli1.addReview(createRealEvaluation(101));
-        peli1.addReview(createRealEvaluation(101));
-        peli2.addReview(createRealEvaluation(101));
-
-        // Usuario 202 hace 5 reviews (el que mas)
-        peli1.addReview(createRealEvaluation(202));
-        peli1.addReview(createRealEvaluation(202));
-        peli2.addReview(createRealEvaluation(202));
-        peli2.addReview(createRealEvaluation(202));
-        peli2.addReview(createRealEvaluation(202));
-
-        // Usuario 303 hace 1 review
-        peli1.addReview(createRealEvaluation(303));
-
-        genero.agregarPelicula(peli1);
-        genero.agregarPelicula(peli2);
-
-        int[] topUsuario = genero.topUsuario();
-
-        assertNotNull(topUsuario);
-        assertEquals(2, topUsuario.length);
-        assertEquals(202, topUsuario[0]); // Id del usuario
-        assertEquals(5, topUsuario[1]);   // Cantidad de reviews
+        pelicula1 = new Pelicula(1, "Fuego en el Horizonte 1", "2022-08-22", 1839725903L);
+        pelicula2 = new Pelicula(2, "Luces de la Ciudad 2", "2017-08-15", 1642545662L);
+        pelicula3 = new Pelicula(3, "Sombras del Pasado 3", "2011-07-11", 1417832793L);
+        pelicula4 = new Pelicula(4, "El Secreto de Luna 4", "2015-09-30", 1820927531L);
+        pelicula5 = new Pelicula(5, "Corazones Perdidos 5", "2015-06-30", 861781966L);
     }
 
     @Test
-    void testTopUsuario_NoEvaluations() {
-        Pelicula peli1 = new Pelicula(1, "Peli 1", "", 0);
-        genero.agregarPelicula(peli1);
+    void addMovie() {
+        accion.addMovie(pelicula1);
+        assertTrue(accion.getMovieList().contains(pelicula1));
+    }
 
-        // No se agregan evaluaciones a la película
-        int[] topUsuario = genero.topUsuario();
+    @Test
+    void getTotalReviewCount() {
+        aventura.addMovie(pelicula2);
+        aventura.addMovie(pelicula3);
+        pelicula2.addReview(new Evaluacion(89, 9.7f, new Date(2024, 3, 4)));
+        pelicula2.addReview(new Evaluacion(100, 3.2f, new Date(2021, 7, 3)));
+        pelicula3.addReview(new Evaluacion(79, 8.9f, new Date(2021, 3, 27)));
 
-        // Assert: Devuelve el valor por defecto
-        assertEquals(-1, topUsuario[0]);
-        assertEquals(0, topUsuario[1]);
+        assertEquals(3, aventura.getTotalReviewCount());
+    }
+
+    @Test
+    void noReviewsTotalReviewCount() {
+        animacion.addMovie(pelicula1);
+        animacion.addMovie(pelicula2);
+        animacion.addMovie(pelicula3);
+
+        assertEquals(0, animacion.getTotalReviewCount());
+    }
+
+    @Test
+    void noMoviesReviewCount() {
+        assertEquals(0, accion.getTotalReviewCount());
+    }
+
+    @Test
+    void getName() {
+        assertEquals("Biografía", biografia.getName());
+    }
+
+    @Test
+    void getId() {
+        assertEquals(1, accion.getId());
+    }
+
+    @Test
+    void getPeliculas() {
+        aventura.addMovie(pelicula3);
+        aventura.addMovie(pelicula4);
+        aventura.addMovie(pelicula5);
+        assertEquals(3, aventura.getMovieList().size());
+        assertEquals(pelicula3, aventura.getMovieList().get(0));
+        assertEquals(pelicula4, aventura.getMovieList().get(1));
+        assertEquals(pelicula5, aventura.getMovieList().get(2));
+    }
+
+    @Test
+    void getPeliculasVacia() {
+        assertEquals(0, animacion.getMovieList().size());
     }
 }

@@ -42,6 +42,6 @@ public class TopPeliculasPorIdioma {
                 count++;
             }
         }
-        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime));
+        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

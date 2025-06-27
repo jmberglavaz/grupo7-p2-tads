@@ -35,6 +35,6 @@ public class TopPeliculas {
             Float averageRating = movieNode.getKey();
             System.out.println(movie.getId() + ", " + movie.getTitle() + ", " + averageRating);
         }
-        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime));
+        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

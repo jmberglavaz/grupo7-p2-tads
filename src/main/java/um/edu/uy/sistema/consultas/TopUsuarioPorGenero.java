@@ -66,6 +66,6 @@ public class TopUsuarioPorGenero {
             System.out.println(topUser[0] + ", " + topGenre.getName() + ", " + topUser[1]);
             userReviewCounts.clean();
         }
-        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime));
+        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

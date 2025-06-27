@@ -33,6 +33,6 @@ public class TopDirectores {
             // Formato de salida: <nombre_director>, <cantidad_peliculas>, <mediana_calificacion>
             System.out.println(topDirector.getName() + ", " + topDirector.getMovieCount() + ", " + topDirector.getRatingMedian());
         }
-        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime));
+        System.out.println("Tiempo de ejecución de la consulta: " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

@@ -8,12 +8,12 @@ import java.util.Calendar;
 public class TestDataGenerator {
     // Datos de prueba para Actores
     public static Actor crearActorConPeliculas() {
-        Actor actor = new Actor("Leonardo DiCaprio");
+        Actor actor = new Actor(1,"Leonardo DiCaprio");
         // Nota: Necesitarás agregar las películas después de crear el actor
         return actor;
     }
     public static Actor crearActorSinPeliculas() {
-        return new Actor("Ryan Gosling");
+        return new Actor(2,"Ryan Gosling");
     }
 
     // Datos de prueba para Directores
