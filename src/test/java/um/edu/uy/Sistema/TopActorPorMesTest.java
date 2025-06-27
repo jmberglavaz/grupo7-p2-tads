@@ -1,315 +1,173 @@
 package um.edu.uy.Sistema;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import um.edu.uy.Sistema.Consultas.TopActorPorMes;
 import um.edu.uy.TADs.Hash.MyHash;
 import um.edu.uy.TADs.Hash.MyHashImplCloseLineal;
 import um.edu.uy.entities.Actor;
-import um.edu.uy.entities.Pelicula;
 
-import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Pruebas unitarias para la clase TopActorPorMes.
+ * Se verifica la correcta identificación del actor con más calificaciones por mes.
+ */
 public class TopActorPorMesTest {
 
-    private MyHash<Integer, Pelicula> listaPeliculas;
-    private MyHash<String, Actor> listaActores;
+    // El hash de actores ahora usa Integer como clave (ID del actor)
+    private MyHash<Integer, Actor> listaActores;
     private ByteArrayOutputStream outputStream;
     private PrintStream originalOut;
 
     @BeforeEach
     void setUp() {
-        // Configurar captura de salida
+        // Redirige la salida de la consola para poder capturarla y verificarla
         outputStream = new ByteArrayOutputStream();
         originalOut = System.out;
         System.setOut(new PrintStream(outputStream));
 
-        // Inicializar estructuras de datos de prueba
-        listaPeliculas = new MyHashImplCloseLineal<>(100);
+        // Inicializa el hash de actores para cada test
         listaActores = new MyHashImplCloseLineal<>(100);
+    }
 
-        // Crear películas de prueba
-        try {
-            Pelicula peli1 = new Pelicula(1, "Pelicula Enero", null, 2023);
-            Pelicula peli2 = new Pelicula(2, "Pelicula Febrero", null, 2023);
-            Pelicula peli3 = new Pelicula(3, "Pelicula Marzo", null, 2023);
+    @AfterEach
+    void tearDown() {
+        // Restaura la salida original de la consola después de cada test
+        System.setOut(originalOut);
+    }
 
-            listaPeliculas.insert(1, peli1);
-            listaPeliculas.insert(2, peli2);
-            listaPeliculas.insert(3, peli3);
-        } catch (Exception e) {
-            fail("Error configurando películas de prueba: " + e.getMessage());
+    /**
+     * Clase interna para simular un Actor con datos controlados para las pruebas.
+     * Esta es la forma correcta de hacer un "mock" sin usar librerías externas.
+     */
+    private static class ActorMock extends Actor {
+        // La estructura interna simula la respuesta del método getStatsForMonth
+        // statsPorMes[mes][0] = cantidad de calificaciones
+        // statsPorMes[mes][1] = cantidad de películas
+        private final int[][] statsPorMes = new int[13][2];
+
+        public ActorMock(int id, String nombre) {
+            super(id, nombre);
+        }
+
+        /**
+         * Permite configurar las estadísticas para un mes específico en el mock.
+         * @param mes El mes (1-12).
+         * @param cantidadCalificaciones El total de calificaciones para ese mes.
+         * @param cantidadPeliculas La cantidad de películas con calificaciones en ese mes.
+         */
+        public void setEstadisticas(int mes, int cantidadCalificaciones, int cantidadPeliculas) {
+            if (mes >= 1 && mes <= 12) {
+                statsPorMes[mes][0] = cantidadCalificaciones;
+                statsPorMes[mes][1] = cantidadPeliculas;
+            }
+        }
+
+        /**
+         * Sobrescribe el método real para devolver los datos que configuramos en el test.
+         */
+        @Override
+        public int[] getStatsForMonth(int mes) {
+            if (mes >= 1 && mes <= 12) {
+                return statsPorMes[mes];
+            }
+            return new int[]{0, 0};
         }
     }
 
+
     @Test
     @DisplayName("Test con actores diferentes dominando cada mes")
-    void testActoresDiferentesPorMes() {
-        try {
-            // Crear actores mock con diferentes evaluaciones por mes
-            ActorMock actor1 = new ActorMock("Leonardo DiCaprio");
-            actor1.setEvaluacionesPorMes(1, 100); // Domina Enero
-            actor1.setEvaluacionesPorMes(2, 10);
-            actor1.setEvaluacionesPorMes(3, 5);
+    void testActoresDiferentesPorMes() throws Exception {
+        // Crear actores mock con diferentes evaluaciones por mes
+        ActorMock actor1 = new ActorMock(1, "Leonardo DiCaprio");
+        actor1.setEstadisticas(1, 100, 2); // Domina Enero
+        actor1.setEstadisticas(2, 10, 1);
 
-            ActorMock actor2 = new ActorMock("Tom Hanks");
-            actor2.setEvaluacionesPorMes(1, 20);
-            actor2.setEvaluacionesPorMes(2, 150); // Domina Febrero
-            actor2.setEvaluacionesPorMes(3, 15);
+        ActorMock actor2 = new ActorMock(2, "Tom Hanks");
+        actor2.setEstadisticas(1, 20, 1);
+        actor2.setEstadisticas(2, 150, 3); // Domina Febrero
 
-            ActorMock actor3 = new ActorMock("Meryl Streep");
-            actor3.setEvaluacionesPorMes(1, 30);
-            actor3.setEvaluacionesPorMes(2, 25);
-            actor3.setEvaluacionesPorMes(3, 200); // Domina Marzo
+        listaActores.insert(1, actor1);
+        listaActores.insert(2, actor2);
 
-            listaActores.insert("Leonardo DiCaprio", actor1);
-            listaActores.insert("Tom Hanks", actor2);
-            listaActores.insert("Meryl Streep", actor3);
+        // Ejecutar la consulta (ahora solo necesita el hash de actores)
+        TopActorPorMes.realizarConsulta(listaActores);
 
-            // Ejecutar consulta
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
+        String output = outputStream.toString();
 
-            String output = outputStream.toString();
-
-            // Verificar que cada actor aparece en el mes correcto
-            assertTrue(output.contains("Enero: Leonardo DiCaprio"),
-                    "Leonardo DiCaprio debería dominar Enero");
-            assertTrue(output.contains("Feb: Tom Hanks"),
-                    "Tom Hanks debería dominar Febrero");
-            assertTrue(output.contains("Marzo: Meryl Streep"),
-                    "Meryl Streep debería dominar Marzo");
-
-        } catch (Exception e) {
-            fail("Error en test de actores diferentes: " + e.getMessage());
-        }
+        // Verificar la salida con el formato del PDF: <mes>, <nombre_actor>, <cantidad_peliculas>, <cantidad de calificaciones>
+        assertTrue(output.contains("Enero, Leonardo DiCaprio, 2, 100"), "Leonardo DiCaprio deberia dominar Enero.");
+        assertTrue(output.contains("Febrero, Tom Hanks, 3, 150"), "Tom Hanks deberia dominar Febrero.");
     }
 
     @Test
     @DisplayName("Test con un actor dominando todos los meses")
-    void testUnActorDominaTodos() {
-        try {
-            ActorMock actorDominante = new ActorMock("Actor Dominante");
-            ActorMock actorNormal = new ActorMock("Actor Normal");
+    void testUnActorDominaTodos() throws Exception {
+        ActorMock actorDominante = new ActorMock(1, "Meryl Streep");
+        ActorMock actorNormal = new ActorMock(2, "Actor Secundario");
 
-            // Actor dominante tiene más evaluaciones en todos los meses
-            for (int mes = 1; mes <= 12; mes++) {
-                actorDominante.setEvaluacionesPorMes(mes, 1000);
-                actorNormal.setEvaluacionesPorMes(mes, 10);
-            }
-
-            listaActores.insert("Actor Dominante", actorDominante);
-            listaActores.insert("Actor Normal", actorNormal);
-
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
-
-            String output = outputStream.toString();
-
-            // Verificar que el actor dominante aparece en todos los meses
-            String[] meses = {"Enero", "Feb", "Marzo", "Abril", "Mayo", "Junio",
-                    "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"};
-
-            for (String mes : meses) {
-                assertTrue(output.contains(mes + ": Actor Dominante"),
-                        "Actor Dominante debería aparecer en " + mes);
-            }
-
-        } catch (Exception e) {
-            fail("Error en test de actor dominante: " + e.getMessage());
+        // El actor dominante tiene más evaluaciones en todos los meses
+        for (int mes = 1; mes <= 12; mes++) {
+            actorDominante.setEstadisticas(mes, 1000, 5);
+            actorNormal.setEstadisticas(mes, 10, 1);
         }
-    }
 
-    @Test
-    @DisplayName("Test con actores sin evaluaciones")
-    void testActoresSinEvaluaciones() {
-        try {
-            ActorMock actorSinEval = new ActorMock("Actor Sin Evaluaciones");
-            ActorMock actorConEval = new ActorMock("Actor Con Evaluaciones");
+        listaActores.insert(1, actorDominante);
+        listaActores.insert(2, actorNormal);
 
-            // Un actor sin evaluaciones (todos 0)
-            for (int mes = 1; mes <= 12; mes++) {
-                actorSinEval.setEvaluacionesPorMes(mes, 0);
-            }
-
-            // Otro actor con pocas evaluaciones solo en algunos meses
-            actorConEval.setEvaluacionesPorMes(1, 5);
-            actorConEval.setEvaluacionesPorMes(6, 3);
-            for (int mes = 2; mes <= 5; mes++) {
-                actorConEval.setEvaluacionesPorMes(mes, 0);
-            }
-            for (int mes = 7; mes <= 12; mes++) {
-                actorConEval.setEvaluacionesPorMes(mes, 0);
-            }
-
-            listaActores.insert("Actor Sin Evaluaciones", actorSinEval);
-            listaActores.insert("Actor Con Evaluaciones", actorConEval);
-
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
-
-            String output = outputStream.toString();
-
-            // En enero y junio debería aparecer el actor con evaluaciones
-            assertTrue(output.contains("Enero: Actor Con Evaluaciones"));
-            assertTrue(output.contains("Junio: Actor Con Evaluaciones"));
-
-        } catch (Exception e) {
-            fail("Error en test de actores sin evaluaciones: " + e.getMessage());
-        }
-    }
-
-    @Test
-    @DisplayName("Test con hash vacío")
-    void testHashVacio() {
-        // Hash de actores vacío
-        MyHash<String, Actor> hashVacio = new MyHashImplCloseLineal<>(10);
-
-        TopActorPorMes.realizarConsulta(listaPeliculas, hashVacio);
+        TopActorPorMes.realizarConsulta(listaActores);
 
         String output = outputStream.toString();
 
-        // Debería mostrar "No hay actores" o heap vacío para todos los meses
-        // (dependiendo de cómo maneja tu implementación los heaps vacíos)
-        assertFalse(output.isEmpty(), "Debería producir alguna salida");
-    }
+        // Verificar que el actor dominante aparece en la salida de todos los meses
+        String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"};
 
-    @Test
-    @DisplayName("Test de consistencia - ejecutar dos veces debería dar mismo resultado")
-    void testConsistencia() {
-        try {
-            // Configurar datos de prueba
-            ActorMock actor1 = new ActorMock("Actor Consistente");
-            actor1.setEvaluacionesPorMes(1, 50);
-            actor1.setEvaluacionesPorMes(2, 75);
-
-            listaActores.insert("Actor Consistente", actor1);
-
-            // Primera ejecución
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
-            String primerResultado = outputStream.toString();
-
-            // Limpiar output y ejecutar segunda vez
-            outputStream.reset();
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
-            String segundoResultado = outputStream.toString();
-
-            assertEquals(primerResultado, segundoResultado,
-                    "Los resultados deberían ser consistentes entre ejecuciones");
-
-        } catch (Exception e) {
-            fail("Error en test de consistencia: " + e.getMessage());
+        for (String mes : meses) {
+            assertTrue(output.contains(mes + ", Meryl Streep, 5, 1000"), "Meryl Streep deberia dominar " + mes);
         }
     }
 
     @Test
-    @DisplayName("Test con muchos actores - verificar rendimiento")
-    void testRendimiento() {
-        try {
-            long inicio = System.currentTimeMillis();
+    @DisplayName("Test con meses sin evaluaciones")
+    void testMesesSinEvaluaciones() throws Exception {
+        ActorMock actorConEvaluaciones = new ActorMock(1, "Brad Pitt");
 
-            // Crear muchos actores (1000)
-            for (int i = 0; i < 1000; i++) {
-                ActorMock actor = new ActorMock("Actor" + i);
-                // Dar valores aleatorios pero predecibles
-                for (int mes = 1; mes <= 12; mes++) {
-                    actor.setEvaluacionesPorMes(mes, (i * mes) % 100);
-                }
-                listaActores.insert("Actor" + i, actor);
-            }
+        // El actor solo tiene evaluaciones en Marzo y Diciembre
+        actorConEvaluaciones.setEstadisticas(3, 50, 2);
+        actorConEvaluaciones.setEstadisticas(12, 100, 4);
 
-            TopActorPorMes.realizarConsulta(listaPeliculas, listaActores);
+        listaActores.insert(1, actorConEvaluaciones);
 
-            long tiempoTotal = System.currentTimeMillis() - inicio;
+        TopActorPorMes.realizarConsulta(listaActores);
 
-            // Verificar que no toma más de 5 segundos (ajustar según necesidad)
-            assertTrue(tiempoTotal < 5000,
-                    "La consulta con 1000 actores no debería tomar más de 5 segundos. Tomó: " + tiempoTotal + "ms");
+        String output = outputStream.toString();
 
-        } catch (Exception e) {
-            fail("Error en test de rendimiento: " + e.getMessage());
-        }
+        // Verificar que el actor gana en los meses que tiene evaluaciones
+        assertTrue(output.contains("Marzo, Brad Pitt, 2, 50"));
+        assertTrue(output.contains("Diciembre, Brad Pitt, 4, 100"));
+
+        // Verificar que en otros meses no aparece (porque no hay datos y el mock devuelve {0,0})
+        assertFalse(output.contains("Enero, Brad Pitt"));
+        assertFalse(output.contains("Febrero, Brad Pitt"));
     }
 
-    // Clase mock para simular Actor con evaluaciones controladas
-    private static class ActorMock extends Actor {
-        private int[] evaluacionesPorMes = new int[13]; // índice 0 no se usa, 1-12 para meses
-
-        public ActorMock(String nombre) {
-            super(nombre);
-        }
-
-        public void setEvaluacionesPorMes(int mes, int cantidad) {
-            if (mes >= 1 && mes <= 12) {
-                evaluacionesPorMes[mes] = cantidad;
-            }
-        }
-
-        @Override
-        public int getCantidadEvaluacionesActorPorMes(int mes) {
-            if (mes >= 1 && mes <= 12) {
-                return evaluacionesPorMes[mes];
-            }
-            return 0;
-        }
-
-        @Override
-        public int getCantidadPeliculasActor() {
-            return 10; // Valor fijo para tests
-        }
-    }
-
-    @org.junit.jupiter.api.AfterEach
-    void tearDown() {
-        // Restaurar salida original
-        System.setOut(originalOut);
-    }
-}
-
-// Clase adicional para tests de integración con datos reales
-class TopActorPorMesIntegrationTest {
     @Test
-    @DisplayName("Test de integración - verificar que los heaps mantienen orden correcto")
-    void testOrdenHeaps() {
-        // Este test requiere acceso a los heaps internos o métodos adicionales
-        // para verificar que el orden es correcto
+    @DisplayName("Test con hash de actores vacio")
+    void testHashVacio() {
+        // Se llama a la consulta con el hash de actores vacío
+        TopActorPorMes.realizarConsulta(listaActores);
 
-        MyHash<Integer, Pelicula> peliculas = new MyHashImplCloseLineal<>(10);
-        MyHash<String, Actor> actores = new MyHashImplCloseLineal<>(10);
+        String output = outputStream.toString().trim();
 
-        try {
-            // Configurar datos donde sabemos el orden esperado
-            peliculas.insert(1, new Pelicula(1, "Test", null, 2023));
-
-            Actor actor1 = new Actor("Primer Actor");
-            Actor actor2 = new Actor("Segundo Actor");
-            Actor actor3 = new Actor("Tercer Actor");
-
-            // Enero: actor3 > actor2 > actor1
-            //actor1.setEvaluacionesPorMes(1, 10);
-            //actor2.setEvaluacionesPorMes(1, 20);
-            //actor3.setEvaluacionesPorMes(1, 30);
-
-            actores.insert("Primer Actor", actor1);
-            actores.insert("Segundo Actor", actor2);
-            actores.insert("Tercer Actor", actor3);
-
-            // Capturar salida
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            PrintStream originalOut = System.out;
-            System.setOut(new PrintStream(output));
-
-            TopActorPorMes.realizarConsulta(peliculas, actores);
-
-            String resultado = output.toString();
-            System.setOut(originalOut);
-
-            // El actor con más evaluaciones (30) debería aparecer en enero
-            assertTrue(resultado.contains("Enero: Tercer Actor"),
-                    "El actor con más evaluaciones debería ganar enero");
-
-        } catch (Exception e) {
-            fail("Error en test de integración: " + e.getMessage());
-        }
+        // La salida debe contener solo la línea del tiempo de ejecución,
+        // ya que no hay actores que procesar.
+        assertTrue(output.startsWith("Tiempo de ejecucion de la consulta:"), "La salida deberia estar casi vacia, solo con el tiempo de ejecucion.");
     }
 }

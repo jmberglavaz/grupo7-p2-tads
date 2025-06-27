@@ -6,31 +6,42 @@ import um.edu.uy.TADs.Heap.MyHeapImpl;
 import um.edu.uy.entities.Idioma;
 import um.edu.uy.entities.Pelicula;
 
+/**
+ * Consulta que muestra el top 5 de películas con más calificaciones por idioma.
+ * Solo considera los idiomas especificados en LanguageAconyms.
+ */
 public class TopPeliculasPorIdioma {
-    private static final String[] idiomas = {"en","fr","it","es","pt"};
-    private static final String[] nombresIdiomas = {"Ingles", "Frances", "Italiano", "Español", "Portugues"};
+    // Lista de acrónimos de idiomas a considerar
+    private static final String[] LanguageAconyms = {"en", "fr", "it", "es", "pt"};
 
-    public static void realizarConsulta(MyHash<String, Idioma> listaDeIdiomas) {
-        long inicio = System.currentTimeMillis();
+    /**
+     * Ejecuta la consulta y muestra las películas top por idioma según cantidad de calificaciones.
+     * @param languageHash Hash con todos los idiomas del sistema.
+     */
+    public static void realizarConsulta(MyHash<String, Idioma> languageHash) {
+        long startTime = System.currentTimeMillis();
 
-        for (int iter = 0; iter < idiomas.length; iter++) {
-            String idioma = idiomas[iter];
-            String nombreIdioma = nombresIdiomas[iter];
-            Idioma idiomaActual = listaDeIdiomas.get(idioma);
+        // Para cada idioma, busca las 5 películas con más calificaciones
+        for (int i = 0; i < LanguageAconyms.length; i++) {
+            String languageAcronym = LanguageAconyms[i];
+            Idioma currentLanguage = languageHash.get(languageAcronym);
 
-            MyHeap<Pelicula> heapPeliculas = new MyHeapImpl<>(1000, false);
-            for (Pelicula peliActual : idiomaActual.getListaPeliculas()) {
-                heapPeliculas.insert(peliActual);
+            if (currentLanguage == null || currentLanguage.getMovieList().isEmpty()) continue;
+
+            MyHeap<Pelicula> movieHeap = new MyHeapImpl<>(1000, false);
+            // Inserta en el heap solo las películas con al menos una calificación
+            for (Pelicula currentMovie : currentLanguage.getMovieList()) {
+                if (currentMovie.getTotalReviewCount() > 0) movieHeap.insert(currentMovie);
             }
-            System.out.println("\nTop peliculas en " + nombreIdioma);
+
             int count = 0;
-            while (heapPeliculas.size() > 0 && count < 5) {
-                Pelicula tempPeli = heapPeliculas.deleteAndObtain();
-                System.out.println(tempPeli.getId() + ", " + tempPeli.getTitulo() + ", " + tempPeli.getListaEvaluaciones().size() + ", " + nombreIdioma);
+            // Imprime las 5 mejores películas por idioma
+            while (movieHeap.size() > 0 && count < 5) {
+                Pelicula topMovie = movieHeap.deleteAndObtain();
+                System.out.println(topMovie.getId() + ", " + topMovie.getTitle() + "," + topMovie.getTotalReviewCount() + ", " + languageAcronym);
                 count++;
             }
         }
-        long fin = System.currentTimeMillis();
-        System.out.println("\nTiempo de demora de la consulta: " + (fin - inicio) + "ms");
+        System.out.println("Tiempo de ejecucion de la consulta: " + (System.currentTimeMillis() - startTime));
     }
 }

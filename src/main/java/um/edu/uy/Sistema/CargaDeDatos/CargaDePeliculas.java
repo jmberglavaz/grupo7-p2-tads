@@ -2,185 +2,191 @@ package um.edu.uy.Sistema.CargaDeDatos;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import um.edu.uy.Exceptions.ElementAlreadyExist;
-import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.Hash.MyHashImplCloseLineal;
 import um.edu.uy.TADs.Hash.MyHash;
+import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Coleccion;
 import um.edu.uy.entities.Genero;
 import um.edu.uy.entities.Idioma;
 import um.edu.uy.entities.Pelicula;
 
-public class CargaDePeliculas {
-    private CSVReader lectorCSV;
-    private final boolean developerMode; // Si se quiere usar el modo desarrollador, se puede cambiar a true para imprimir mas detalles
-    private final MyHash<Integer, Pelicula> peliculas;
-    private final MyHash<Integer, Genero> generos;
-    private final MyHash<String, Idioma> idiomas;
-    private final MyHash<Integer, Coleccion> colecciones;
-    private final Pattern PATTERNCOLECCION = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
-    private final Pattern PATTERNGENERO = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    public CargaDePeliculas(boolean developerMode) {
-        this.developerMode = developerMode;
-        try{
-            FileInputStream archivoCSV = new FileInputStream("movies_metadata.csv");
-            this.lectorCSV = new CSVReader(new InputStreamReader(archivoCSV));
-            lectorCSV.readNext(); // Se lee la primera línea (cabecera) y se descarta
+/**
+ * Se encarga de la carga de datos de películas, géneros, idiomas y colecciones
+ * desde el archivo "movies_metadata.csv".
+ */
+public class CargaDePeliculas {
+    private CSVReader csvReader;
+    private final boolean isDevMode;
+    private final MyHash<Integer, Pelicula> movies;
+    private final MyHash<Integer, Genero> genres;
+    private final MyHash<String, Idioma> languages;
+    private final MyHash<Integer, Coleccion> collections;
+
+    // Patrones Regex para extraer datos de los campos de texto del CSV
+    private final Pattern patternCollection = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+    private final Pattern patternGenre = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+
+    /**
+     * Constructor que inicializa los hashes y comienza la carga de datos.
+     * @param isDevMode Si es true, imprime estadísticas de la carga.
+     */
+    public CargaDePeliculas(boolean isDevMode) {
+        this.isDevMode = isDevMode;
+        try {
+            // Se abre el archivo CSV y se salta la primera línea (cabecera)
+            FileInputStream file = new FileInputStream("movies_metadata.csv");
+            this.csvReader = new CSVReader(new InputStreamReader(file));
+            csvReader.readNext();
         } catch (IOException | CsvValidationException e) {
-            System.out.println("Error critico al cargar el archivo de peliculas. Asegurese de que el archivo movies_metadata.csv se encuentre en la raiz del proyecto.");
+            System.out.println("Error critico al cargar 'movies_metadata.csv'. Asegurese de que el archivo este en la raiz del proyecto.");
             System.out.println("Error detallado: " + e.getMessage());
         }
 
-        this.peliculas = new MyHashImplCloseLineal<>(59999);
-        this.generos = new MyHashImplCloseLineal<>(53);
-        this.idiomas = new MyHashImplCloseLineal<>(97);
-        this.colecciones = new MyHashImplCloseLineal<>(1709);
+        // Inicialización de las tablas de hash con capacidades estimadas
+        this.movies = new MyHashImplCloseLineal<>(59999);
+        this.genres = new MyHashImplCloseLineal<>(53);
+        this.languages = new MyHashImplCloseLineal<>(97);
+        this.collections = new MyHashImplCloseLineal<>(1709);
 
-        try{
+        // Inicia el proceso de carga
+        try {
             cargarDatos();
         } catch (IOException | CsvValidationException e) {
-            System.out.println("Error al cargar los datos de las peliculas: " + e.getMessage());
+            System.out.println("Error durante la carga de datos de peliculas: " + e.getMessage());
         }
     }
 
+    /**
+     * Lee el archivo CSV línea por línea, procesando cada película y asociando sus
+     * géneros, idioma y colección.
+     */
     public void cargarDatos() throws IOException, CsvValidationException {
-        long inicio = developerMode ? System.currentTimeMillis() : 0;
-
+        long start = isDevMode ? System.currentTimeMillis() : 0;
         System.out.println("Iniciando carga de peliculas...");
         String[] dataLine;
-        while ((dataLine = lectorCSV.readNext()) != null) {
 
-            int idPelicula;
+        while ((dataLine = csvReader.readNext()) != null) {
+            int movieId;
             try {
-                idPelicula = Integer.parseInt(dataLine[5]);
+                // El ID de la película está en la columna 5
+                movieId = Integer.parseInt(dataLine[5]);
             } catch (NumberFormatException e) {
-                continue;
+                continue; // Si el ID no es un número válido, se salta la línea
             }
 
-            long ganancias = 0;
+            long revenue = 0;
             try {
-                ganancias = Long.parseLong(dataLine[13]);
-            } catch (NumberFormatException ignored) {}
+                // Los ingresos (revenue) están en la columna 13
+                revenue = Long.parseLong(dataLine[13]);
+            } catch (NumberFormatException ignored) {
+                // Si no hay dato de revenue, se deja en 0
+            }
 
-            Pelicula pelicula = new Pelicula(idPelicula, dataLine[8], dataLine[12], ganancias);
+            // Se crea la película y se inserta en el hash
+            Pelicula movie = new Pelicula(movieId, dataLine[8], dataLine[12], revenue);
             try {
-                peliculas.insert(idPelicula, pelicula);
+                movies.insert(movieId, movie);
             } catch (ElementAlreadyExist ignored) {
-                continue;
+                continue; // Si la película ya existe, se salta
             }
 
-            MyList<Genero> listaGeneros = searchGeneros(dataLine[3]);
-            for (Genero genero : listaGeneros) {
-                try{
-                    this.generos.insert(genero.getId(), genero);
-                    genero.agregarPelicula(pelicula);
-                } catch (ElementAlreadyExist ignored) {
-                    genero = generos.get(genero.getId());
-                    genero.agregarPelicula(pelicula);
-                }
-            }
-
-            String acronimoIdioma = dataLine[7];
-            if (acronimoIdioma != null && !acronimoIdioma.trim().isEmpty()) {
-                Idioma idioma = new Idioma(acronimoIdioma);
+            // Procesa y asocia los géneros a la película
+            MyList<Genero> genreList = parseGenres(dataLine[3]);
+            for (Genero genre : genreList) {
                 try {
-                    idiomas.insert(acronimoIdioma, idioma);
-                    idioma.agregarPelicula(pelicula);
+                    // Si el género no existe en el hash, se inserta
+                    this.genres.insert(genre.getId(), genre);
+                    genre.addMovie(movie);
                 } catch (ElementAlreadyExist ignored) {
-                    idioma = idiomas.get(acronimoIdioma);
-                    idioma.agregarPelicula(pelicula);
+                    // Si ya existe, se obtiene y se le asocia la película
+                    genre = genres.get(genre.getId());
+                    if (genre != null) genre.addMovie(movie);
                 }
             }
 
-            Coleccion coleccion = searchColecciones(dataLine[1], idPelicula, dataLine[8]);
-            if (coleccion != null){
+            // Procesa y asocia el idioma a la película
+            String langAcronym = dataLine[7];
+            if (langAcronym != null && !langAcronym.trim().isEmpty()) {
+                Idioma lang = new Idioma(langAcronym);
                 try {
-                    colecciones.insert(coleccion.getId(), coleccion);
-                    coleccion.agregarPelicula(pelicula);
+                    languages.insert(langAcronym, lang);
+                    lang.addMovie(movie);
                 } catch (ElementAlreadyExist ignored) {
-                    coleccion = colecciones.get(coleccion.getId());
-                    coleccion.agregarPelicula(pelicula);
+                    lang = languages.get(langAcronym);
+                    if (lang != null) lang.addMovie(movie);
+                }
+            }
+
+            // Procesa y asocia la colección a la película
+            Coleccion collection = parseCollection(dataLine[1], movieId, dataLine[8]);
+            if (collection != null) {
+                try {
+                    collections.insert(collection.getId(), collection);
+                    collection.addMovie(movie);
+                } catch (ElementAlreadyExist ignored) {
+                    collection = collections.get(collection.getId());
+                    if (collection != null) collection.addMovie(movie);
                 }
             }
         }
 
-        if (developerMode) {
-            mostrarEstadisticasCarga(inicio, System.currentTimeMillis());
+        if (isDevMode) {
+            printLoadStats(start, System.currentTimeMillis());
         }
-
     }
 
-    public MyHash<Integer, Pelicula> getPeliculas() {
-        return peliculas;
-    }
+    //Getters para acceder a los datos cargados
+    public MyHash<Integer, Pelicula> getPeliculas() { return movies; }
+    public MyHash<Integer, Genero> getGeneros() { return genres; }
+    public MyHash<String, Idioma> getIdiomas() { return languages; }
+    public MyHash<Integer, Coleccion> getColecciones() { return collections; }
 
-    public MyHash<Integer, Genero> getGeneros() {
-        return generos;
-    }
+    //Métodos privados de parseo
 
-    public MyHash<String, Idioma> getIdiomas() {
-        return idiomas;
-    }
-
-    public MyHash<Integer, Coleccion> getColecciones() {
-        return colecciones;
-    }
-
-    private MyList<Genero> searchGeneros(String entrada){
-        MyList<Genero> listaGeneros = new MyLinkedListImpl<>();
-        if (entrada == null || entrada.trim().isEmpty()) {
-            return listaGeneros;
-        }
-
-        Matcher matcher = PATTERNGENERO.matcher(entrada);
+    private MyList<Genero> parseGenres(String input) {
+        MyList<Genero> genreList = new MyLinkedListImpl<>();
+        if (input == null || input.trim().isEmpty()) return genreList;
+        Matcher matcher = patternGenre.matcher(input);
         while (matcher.find()) {
             try {
                 int id = Integer.parseInt(matcher.group(1));
-                String nombre = matcher.group(2);
-                listaGeneros.add(new Genero(id, nombre));
+                String name = matcher.group(2);
+                genreList.add(new Genero(id, name));
             } catch (NumberFormatException ignored) {}
         }
-        return listaGeneros;
-
+        return genreList;
     }
 
-    private Coleccion searchColecciones(String entrada, int idPelicula, String nombrePelicula){
-        if (entrada == null) {
-            return null;
-        } else if (entrada.trim().isEmpty()) {
-            return new Coleccion(idPelicula, nombrePelicula);
-        }
-
-        Matcher matcher = PATTERNCOLECCION.matcher(entrada);
-        if (matcher.find()){
+    private Coleccion parseCollection(String input, int movieId, String movieName) {
+        if (input == null) return null;
+        if (input.trim().isEmpty()) return new Coleccion(movieId, movieName);
+        Matcher matcher = patternCollection.matcher(input);
+        if (matcher.find()) {
             try {
                 int id = Integer.parseInt(matcher.group(1));
-                String nombre = matcher.group(2);
-                return new Coleccion(id, nombre);
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
+                String name = matcher.group(2);
+                return new Coleccion(id, name);
+            } catch (NumberFormatException ignored) { return null; }
         }
         return null;
     }
 
-    private void mostrarEstadisticasCarga(long inicio, long fin){
+    private void printLoadStats(long start, long end) {
         System.out.println("\n=== ESTADISTICAS DE CARGA DE PELICULAS ===");
-        System.out.println("Tiempo total de carga: " + (fin - inicio) + " ms");
-        System.out.println("Peliculas procesadas: " + (lectorCSV.getRecordsRead()-1));
-        System.out.println("Peliculas validas cargadas: " + peliculas.size());
-        System.out.println("Generos unicos: " + generos.size());
-        System.out.println("Idiomas unicos: " + idiomas.size());
-        System.out.println("Colecciones unicas: " + colecciones.size());
+        System.out.println("Tiempo total de carga: " + (end - start) + " ms");
+        System.out.println("Peliculas procesadas: " + (csvReader.getRecordsRead() - 1));
+        System.out.println("Peliculas validas cargadas: " + movies.size());
+        System.out.println("Generos unicos: " + genres.size());
+        System.out.println("Idiomas unicos: " + languages.size());
+        System.out.println("Colecciones unicas: " + collections.size());
         System.out.println("========================================\n");
     }
 }

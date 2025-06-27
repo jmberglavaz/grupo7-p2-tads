@@ -6,23 +6,33 @@ import um.edu.uy.TADs.Heap.MyHeapImpl;
 import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Director;
 
+/**
+ * Consulta que muestra el top 10 de directores con mejor calificación mediana.
+ * Solo considera directores con más de una película y al menos 100 calificaciones.
+ */
 public class TopDirectores {
+    /**
+     * Ejecuta la consulta y muestra los directores top según la mediana de calificaciones.
+     * @param directorHash Hash con todos los directores del sistema.
+     */
+    public static void realizarConsulta(MyHash<String, Director> directorHash) {
+        long startTime = System.currentTimeMillis();
+        MyList<Director> directorList = directorHash.getValues();
+        MyHeap<Director> directorHeap = new MyHeapImpl<>(directorList.size(), false);
 
-    public static void realizarConsulta(MyHash<String, Director> almacenDeDirectores){
-        long inicio = System.currentTimeMillis();
-        MyList<Director> listaDeDirectores = almacenDeDirectores.getValues();
-        MyHeap<Director> resultadoDirectores = new MyHeapImpl<>(listaDeDirectores.size(),false);
-
-        for (Director tempDirector : listaDeDirectores){
-            if (tempDirector.getCantidadPeliculas() <= 1 || tempDirector.getCantidadEvaluaciones() < 100){continue;}
-            resultadoDirectores.insert(tempDirector);
+        // Inserta en el heap solo los directores que cumplen los requisitos
+        for (Director currentDirector : directorList) {
+            if (currentDirector.getMovieCount() > 1 && currentDirector.getTotalReviewCount() >= 100) {
+                directorHeap.insert(currentDirector);
+            }
         }
 
-        System.out.println("Top 10 Directores con mejor calificacion");
-        for (int iter  = 1; iter <= 10 ; iter++){
-            Director tempDirector = resultadoDirectores.deleteAndObtain();
-            System.out.println("Top " + iter + ": " + tempDirector.getNombre() + " " + tempDirector.getCantidadPeliculas() + " " + tempDirector.obtainMediana());
+        // Imprime los 10 mejores directores según la mediana de calificaciones
+        for (int i = 0; i < 10 && directorHeap.size() > 0; i++) {
+            Director topDirector = directorHeap.deleteAndObtain();
+            // Formato de salida: <nombre_director>, <cantidad_peliculas>, <mediana_calificacion>
+            System.out.println(topDirector.getName() + ", " + topDirector.getMovieCount() + ", " + topDirector.getRatingMedian());
         }
-        System.out.println("Tiempo total de consulta: " + (System.currentTimeMillis() - inicio) + "ms");
+        System.out.println("Tiempo de ejecucion de la consulta: " + (System.currentTimeMillis() - startTime));
     }
 }

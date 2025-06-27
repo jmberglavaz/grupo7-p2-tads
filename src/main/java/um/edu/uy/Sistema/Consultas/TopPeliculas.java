@@ -7,46 +7,34 @@ import um.edu.uy.TADs.Hash.MyHash;
 import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.entities.Pelicula;
 
-
+/**
+ * Consulta que muestra el top 10 de películas con mejor calificación media.
+ * Solo considera películas con más de 100 calificaciones.
+ */
 public class TopPeliculas {
-    // Top 10 de las películas que mejor calificación media tienen por parte de los usuarios, considerando solo las películas con mas de 100 calificaciones
+    /**
+     * Ejecuta la consulta y muestra las películas top según el promedio de calificaciones.
+     * @param movieHash Hash con todas las películas del sistema.
+     */
+    public static void realizarConsulta(MyHash<Integer, Pelicula> movieHash) {
+        long startTime = System.currentTimeMillis();
+        MyList<Pelicula> movieList = movieHash.getValues();
+        MyHeapKT<Float, Pelicula> moviesByAverageRating = new MyHeapKTImplementation<>(movieList.size(), false);
 
-    public static void realizarConsulta(MyHash<Integer, Pelicula> almacenlistaPeliculas) {
-        long inicio = System.currentTimeMillis();
-
-        MyList<Pelicula> listaPeliculas = almacenlistaPeliculas.getValues();
-        MyHeapKT<Float, Pelicula> peliculasPorCalificacionMedia = new MyHeapKTImplementation<>(listaPeliculas.size(), false);
-
-        // Agrego películas:
-        for (Pelicula pelicula : listaPeliculas) {
-            if (pelicula != null && pelicula.getCantidadEvaluaciones() > 100) {
-                    // agrego al heap con promedio de evaluaciones como clave
-                    peliculasPorCalificacionMedia.insert(pelicula.getPromedioDeEvaluaciones(), pelicula);
+        // Inserta en el heap solo las películas que cumplen los requisitos
+        for (Pelicula movie : movieList) {
+            if (movie != null && movie.getTotalReviewCount() > 100) {
+                moviesByAverageRating.insert(movie.getAverageRating(), movie);
             }
         }
-        // Saco las 10 más altas del heap:
-        System.out.println("\nTop 10 de las películas que mejor calificación media tienen por parte de los usuarios");
-        System.out.println("Top 1: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 2: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 3: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 4: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 5: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 6: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 7: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 8: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 9: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()));
-        System.out.println("Top 10: " + imprimirPeliculaConTop(peliculasPorCalificacionMedia.deleteAndObtainNode()) + "\n");
 
-        System.out.println("Tiempo total de consulta: " + (System.currentTimeMillis() - inicio) + "ms");
+        // Imprime las 10 mejores películas según el promedio de calificaciones
+        for (int i = 0; i < 10 && moviesByAverageRating.size() > 0; i++) {
+            HeapNode<Float, Pelicula> movieNode = moviesByAverageRating.deleteAndObtainNode();
+            Pelicula movie = movieNode.getData();
+            Float averageRating = movieNode.getKey();
+            System.out.println(movie.getId() + ", " + movie.getTitle() + ", " + averageRating);
+        }
+        System.out.println("Tiempo de ejecucion de la consulta: " + (System.currentTimeMillis() - startTime));
     }
-
-    private static String imprimirPeliculaConTop(HeapNode<Float, Pelicula> peliculaConCalificacion) {
-        Pelicula pelicula = peliculaConCalificacion.getData();
-        Float promedioPelicula = peliculaConCalificacion.getKey();
-        return pelicula.getId() + ", " + pelicula.getTitulo() + ", " + promedioPelicula;
-        //<id_pelicula>, <titulo_pelicula>, <calificacion_media>
-
-    }
-
-
 }

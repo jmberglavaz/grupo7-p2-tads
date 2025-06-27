@@ -9,136 +9,153 @@ import um.edu.uy.TADs.Hash.MyHash;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * Clase principal que orquesta la aplicación, gestionando la carga de datos y el menú de usuario.
+ */
 public class UMovie {
-    private static MyHash<Integer, Pelicula> peliculas;
-    private static MyHash<Integer, Genero> generos;
-    private static MyHash<Integer, Coleccion> colecciones;
-    private static MyHash<String, Idioma> idiomas;
-    private static MyHash<String,Director> directores;
-    private static MyHash<Integer, Actor> actores;
-    private static boolean datosCargados = false;
+    // Hashes para almacenar todos los datos cargados del sistema
+    private static MyHash<Integer, Pelicula> movies;
+    private static MyHash<Integer, Genero> genres;
+    private static MyHash<Integer, Coleccion> collections;
+    private static MyHash<String, Idioma> languages;
+    private static MyHash<String, Director> directors;
+    private static MyHash<Integer, Actor> actors;
 
-    public UMovie() {
-    }
+    // Bandera para controlar que los datos se carguen una sola vez
+    private static boolean dataLoaded = false;
 
-    public static void iniciar(){
-        boolean encendido = true;
+    /**
+     * Punto de entrada para iniciar la aplicación.
+     * Muestra el menú principal y gestiona el flujo del programa.
+     */
+    public static void iniciar() {
+        boolean exit = false;
+        Scanner scanner = new Scanner(System.in);
 
-        while (encendido) {
-            System.out.println("""
-                    Seleccione una opción:
-                    1. Carga de Datos
-                    2. Ejecutar Consultas
-                    3. Salir
-                    """);
-            Scanner scanner = new Scanner(System.in);
+        while (!exit) {
+            System.out.println("\nSeleccione la opcion que desee:");
+            System.out.println("1. Carga de datos");
+            System.out.println("2. Ejecutar consultas");
+            System.out.println("3. Salir");
+            System.out.print("Opcion: ");
+
             try {
-                int opcion = scanner.nextInt();
-                encendido = verificarOpcionPrincipal(opcion);
-            } catch (InputMismatchException e){
-                System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 3.");
+                int option = scanner.nextInt();
+                exit = handleMainMenuOption(option);
+            } catch (InputMismatchException e) {
+                System.out.println("\nERROR: Opcion no valida. Ingrese un numero entre 1 y 3.");
+                scanner.next(); // Limpia el buffer del scanner
             }
         }
+        scanner.close();
     }
 
-
-    private static boolean verificarOpcionPrincipal(int opcion){
-        switch (opcion) {
-            case 1 -> {
-                if(!datosCargados){
-                    cargarDatos();
-                    datosCargados = true;
+    /**
+     * Procesa la opción seleccionada en el menú principal.
+     */
+    private static boolean handleMainMenuOption(int option) {
+        switch (option) {
+            case 1:
+                if (!dataLoaded) {
+                    long startTime = System.currentTimeMillis();
+                    cargarDatos(false); // Carga en modo normal
+                    long endTime = System.currentTimeMillis();
+                    System.out.println("Carga de datos exitosa, tiempo de ejecucion de la carga: " + (endTime - startTime));
+                    dataLoaded = true;
                 } else {
-                    System.out.println("Los datos ya estan cargados.");
+                    System.out.println("\nAVISO: Los datos ya han sido cargados previamente.");
                 }
-            }
-            case 2 -> iniciarMenuConsultas();
-            case 3 -> {
-                System.out.println("Saliendo del sistema...");
-                return false;
-            }
-            case 3435 -> {
-                if (!datosCargados) {
+                break;
+            case 2:
+                if (dataLoaded) {
+                    showQueriesMenu();
+                } else {
+                    System.out.println("\nERROR: Debe cargar los datos primero (Opcion 1).");
+                }
+                break;
+            case 3:
+                return true; // Señal para salir del bucle principal
+            case 3435: // Opción oculta para modo desarrollador
+                if (!dataLoaded) {
                     cargarDatos(true);
-                    datosCargados = true;
+                    dataLoaded = true;
                 }
-            }
-            default -> System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 3.");
+                break;
+            default:
+                System.out.println("\nERROR: Opcion no valida. Ingrese un numero entre 1 y 3.");
         }
-        return true;
+        return false;
     }
 
-    private static void iniciarMenuConsultas(){
-        boolean encendido = true;
+    /**
+     * Muestra el menú de consultas y gestiona la selección del usuario.
+     */
+    private static void showQueriesMenu() {
+        boolean back = false;
+        Scanner scanner = new Scanner(System.in);
 
-        while (encendido) {
-            System.out.println("""
-                    Menú de opciones
-                    1. Top 5 de las películas que más calificaciones por idioma
-                    2. Top 10 de las películas que mejor calificación media tienen por parte de los usuarios
-                    3. Top 5 de las colecciones que más ingresos generaron
-                    4. Top 10 de los directores que mejor calificación tienen
-                    5. Actor con más calificaciones recibidas en cada mes del año
-                    6. Usuarios con más calificaciones por género
-                    7. Salir
-                    Elija una opción(1-7):\s""");
-            Scanner scanner = new Scanner(System.in);
+        while (!back) {
+            System.out.println("\n1. Top 5 de las peliculas que mas calificaciones por idioma.");
+            System.out.println("2. Top 10 de las peliculas que mejor calificacion media tienen por parte de los usuarios.");
+            System.out.println("3. Top 5 de las colecciones que mas ingresos generaron.");
+            System.out.println("4. Top 10 de los directores que mejor calificacion tienen.");
+            System.out.println("5. Actor con mas calificaciones recibidas en cada mes del año.");
+            System.out.println("6. Usuarios con mas calificaciones por genero");
+            System.out.println("7. Salir");
+            System.out.print("Opcion: ");
+
             try {
-                int opcion = scanner.nextInt();
-                encendido = verificarOpcionConsultas(opcion);
-            } catch (InputMismatchException e){
-                System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 7.");
+                int option = scanner.nextInt();
+                back = handleQueryMenuOption(option);
+            } catch (InputMismatchException e) {
+                System.out.println("\nERROR: Opcion no valida. Ingrese un numero entre 1 y 7.");
+                scanner.next(); // Limpia el buffer
             }
         }
     }
 
-    private static boolean verificarOpcionConsultas(int opcion){
-        switch (opcion) {
-            case 1 -> TopPeliculasPorIdioma.realizarConsulta(idiomas);
-            case 2 -> TopPeliculas.realizarConsulta(peliculas);
-            case 3 -> System.out.println("La tengo que arreglar con los de las FK"); //.realizarConsulta(peliculas, colecciones);
-            case 4 -> TopDirectores.realizarConsulta(directores);
-            case 5 -> TopActorPorMes.realizarConsultav3(peliculas, actores); //System.out.println("Funcion de actor mejor calificado por cada mes (Pendiente)");
-            case 6 -> TopUsuarioPorGenero.realizarConsulta(generos);
-            case 7 -> {
-                System.out.println("Volviendo atras...");
-                return false;
-            }
-            default -> System.out.println("ERROR: Opción no válida, ingrese un número entre 1 y 7.");
+    /**
+     * Llama a la clase de consulta correspondiente según la opción del usuario.
+     */
+    private static boolean handleQueryMenuOption(int option) {
+        switch (option) {
+            case 1: TopPeliculasPorIdioma.realizarConsulta(languages); break;
+            case 2: TopPeliculas.realizarConsulta(movies); break;
+            case 3: TopSagaConMayorIngresos.realizarConsulta(collections); break;
+            case 4: TopDirectores.realizarConsulta(directors); break;
+            case 5: TopActorPorMes.realizarConsulta(actors); break;
+            case 6: TopUsuarioPorGenero.realizarConsulta(genres); break;
+            case 7:
+                return true;
+            default:
+                System.out.println("ERROR: Opcion no valida. Ingrese un numero entre 1 y 7.");
         }
-        return true;
+        return false;
     }
 
-    private static void cargarDatos() {
-        cargarDatos(false);
-    }
+    /**
+     * Orquesta la carga de todos los datos desde los archivos CSV.
+     */
+    private static void cargarDatos(boolean isDeveloperMode) {
+        if (!isDeveloperMode) System.out.println("\nIniciando proceso de carga de datos...");
 
-    private static void cargarDatos(boolean DeveloperMode) {
-        long inicio = DeveloperMode ? System.currentTimeMillis() : 0;
-        CargaDePeliculas cargaPeliculas = new CargaDePeliculas(DeveloperMode);
-        CargaDeEvaluaciones cargaEvaluaciones = new CargaDeEvaluaciones(DeveloperMode);
-        CargaDeStaff cargaDeStaff = new CargaDeStaff(DeveloperMode);
+        CargaDePeliculas movieLoader = new CargaDePeliculas(isDeveloperMode);
+        movies = movieLoader.getPeliculas();
+        genres = movieLoader.getGeneros();
+        languages = movieLoader.getIdiomas();
+        collections = movieLoader.getColecciones();
+        if (!isDeveloperMode) System.out.println("Carga de peliculas completada.");
 
-        peliculas = cargaPeliculas.getPeliculas();
-        generos = cargaPeliculas.getGeneros();
-        idiomas = cargaPeliculas.getIdiomas();
-        colecciones = cargaPeliculas.getColecciones();
-        System.out.println("Carga de peliculas completada");
+        CargaDeEvaluaciones reviewLoader = new CargaDeEvaluaciones(isDeveloperMode);
+        try { reviewLoader.cargarDatos(movies); } catch (Exception ignored) {}
+        if (!isDeveloperMode) System.out.println("Carga de evaluaciones completada.");
 
+        CargaDeStaff staffLoader = new CargaDeStaff(isDeveloperMode);
         try {
-            cargaEvaluaciones.cargarDatos(peliculas);
+            staffLoader.cargarDatos(movies);
+            directors = staffLoader.getDirectores();
+            actors = staffLoader.getActores();
         } catch (Exception ignored) {}
-        System.out.println("Carga de evaluaciones completada.");
-
-        try {
-            cargaDeStaff.cargarDatos(peliculas);
-            directores = cargaDeStaff.getDirectores();
-            actores = cargaDeStaff.getActores();
-        } catch (Exception ignored) {}
-        System.out.println("Carga de creditos completada.");
-
-        if (DeveloperMode) {
-            System.out.println("\n ===== TIEMPO TOTAL DE CARGA: " + (System.currentTimeMillis() - inicio) + "ms =====\n");
-        }
+        if (!isDeveloperMode) System.out.println("Carga de creditos completada.");
     }
 }

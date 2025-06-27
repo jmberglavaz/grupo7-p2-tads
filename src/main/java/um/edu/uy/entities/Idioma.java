@@ -3,42 +3,36 @@ package um.edu.uy.entities;
 import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.List.MyList;
 
+/**
+ * Representa un idioma en el que una película fue filmada o doblada.
+ */
 public class Idioma {
-    private String nombre;
-    private String acronimo;
-    private MyList<Pelicula> listaPeliculas;
+    private String acronym;
+    private MyList<Pelicula> movieList;
 
-    public Idioma(String acronimo) {
-        this.nombre = null;
-        this.acronimo = acronimo;
-        this.listaPeliculas = new MyLinkedListImpl<>();
+    /**
+     * Constructor para crear una nueva instancia de Idioma.
+     * @param acronym El acrónimo del idioma (ej. "en" para inglés).
+     */
+    public Idioma(String acronym) {
+
+        this.acronym = acronym;
+        this.movieList = new MyLinkedListImpl<>();
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getAcronym() {
+        return acronym;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public MyList<Pelicula> getMovieList() {
+        return movieList;
     }
 
-    public String getAcronimo() {
-        return acronimo;
-    }
-
-    public void setAcronimo(String acronimo) {
-        this.acronimo = acronimo;
-    }
-
-    public MyList<Pelicula> getListaPeliculas() {
-        return listaPeliculas;
-    }
-
-    public void setListaPeliculas(MyList<Pelicula> listaPeliculas) {
-        this.listaPeliculas = listaPeliculas;
-    }
-
-    public void agregarPelicula(Pelicula tempPeli) {
-        listaPeliculas.add(tempPeli);
+    /**
+     * Agrega una película a la lista de películas en este idioma.
+     * @param movie La película a agregar.
+     */
+    public void addMovie(Pelicula movie) {
+        movieList.add(movie);
     }
 }
