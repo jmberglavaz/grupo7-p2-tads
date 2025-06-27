@@ -4,81 +4,107 @@ import um.edu.uy.TADs.List.MyArrayListImpl;
 import um.edu.uy.TADs.List.MyList;
 import um.edu.uy.TADs.Sorting;
 
+/**
+ * Representa a un director de cine, con su nombre y las películas que ha dirigido.
+ */
 public class Director implements Comparable<Director>{
-    private String nombre;
-    private final MyList<Pelicula> listaPeliculas;
-    private float mediana;
-    private int cantEvaluciones;
+    private String name;
+    private final MyList<Pelicula> movieList;
 
-    public Director(String nombre) {
-        this.nombre = nombre;
-        this.listaPeliculas = new MyArrayListImpl<>();
+    // Campos de caché para optimizar el rendimiento y no recalcular valores.
+    private float ratingMedian;
+    private int reviewCountCache;
+
+    /**
+     * Constructor para crear un nuevo Director.
+     * @param name El nombre del director.
+     */
+    public Director(String name) {
+        this.name = name;
+        this.movieList = new MyArrayListImpl<>();
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    /**
+     * Agrega una película a la filmografía del director.
+     * @param movie La película a agregar.
+     */
+    public void addMovie(Pelicula movie) {
+        this.movieList.add(movie);
     }
 
-    public MyList<Pelicula> getListaPeliculas() {
-        return listaPeliculas;
+    public int getMovieCount(){
+        return movieList.size();
     }
 
-    public void agregarPelicula(Pelicula tempPelicula) {
-        this.listaPeliculas.add(tempPelicula);
-    }
-
-    public int getCantidadPeliculas(){
-        return listaPeliculas.size();
-    }
-
-    public int getCantidadEvaluaciones(){
-        if (this.cantEvaluciones != 0){
-            return this.cantEvaluciones;
+    /**
+     * Obtiene el número total de evaluaciones de todas las películas del director.
+     * Utiliza un caché para evitar recalcular este valor.
+     * @return El número total de evaluaciones.
+     */
+    public int getTotalReviewCount(){
+        // Si el valor ya fue calculado, se devuelve directamente desde el caché
+        if (this.reviewCountCache != 0){
+            return this.reviewCountCache;
         }
 
-        int cant = 0;
-        for (Pelicula peliActual : listaPeliculas){
-            cant += peliActual.getCantidadEvaluaciones();
+        // Si no, se calcula, se guarda en el caché y se devuelve
+        int count = 0;
+        for (Pelicula movie : movieList){
+            count += movie.getTotalReviewCount();
         }
-
-        this.cantEvaluciones = cant;
-        return cantEvaluciones;
+        this.reviewCountCache = count;
+        return reviewCountCache;
     }
 
-    public float obtainMediana(){
-        if (this.mediana != 0){
-            return mediana;
+    /**
+     * Calcula y obtiene la mediana de las calificaciones de todas las películas del director.
+     * Solo se calcula si el director tiene más de 1 película y más de 100 evaluaciones en total.
+     * Utiliza un caché para evitar recalcular este valor.
+     * @return La mediana de las calificaciones, o 0 si no cumple los requisitos.
+     */
+    public float getRatingMedian(){
+        // Si la mediana ya fue calculada, se devuelve desde el caché
+        if (this.ratingMedian != 0){
+            return ratingMedian;
         }
 
-
-        int largo = getCantidadEvaluaciones();
-        if (listaPeliculas.size() <= 1 || largo <=100){
-            return 0;
+        int totalReviews = getTotalReviewCount();
+        if (movieList.size() <= 1 || totalReviews <= 100){
+            return 0; // No cumple las condiciones para calcular la mediana
         }
 
-        MyList<Float> evaluaciones = new MyArrayListImpl<>(largo);
-        for (Pelicula tempPelicula : listaPeliculas){
-            if (tempPelicula.getCantidadEvaluaciones() == 0){continue;}
-            for (Evaluacion tempEvaluacion : tempPelicula.getListaEvaluaciones()){
-                evaluaciones.add(tempEvaluacion.getCalificacion());
+        // Junta todas las calificaciones en una sola lista
+        MyList<Float> allRatings = new MyArrayListImpl<>(totalReviews);
+        for (Pelicula movie : movieList){
+            if (movie.getTotalReviewCount() == 0){ continue; }
+            for (Evaluacion review : movie.getAllReviews()){
+                allRatings.add(review.getRating());
             }
         }
 
-        Sorting<Float> ordenamiento = new Sorting<>();
-        evaluaciones = ordenamiento.quickSort(evaluaciones);
+        // Ordena la lista para calcular la mediana
+        Sorting<Float> sorter = new Sorting<>();
+        allRatings = sorter.quickSort(allRatings);
 
-        this.mediana = (largo % 2 == 0) ?
-                (evaluaciones.get(largo/2) + evaluaciones.get((largo/2) - 1))/2 :
-                evaluaciones.get(((largo + 1)/2)-1);
-        return this.mediana;
+        // Calcula la mediana dependiendo de si el número de elementos es par o impar
+        if (totalReviews % 2 == 0) {
+            this.ratingMedian = (allRatings.get(totalReviews / 2) + allRatings.get((totalReviews / 2) - 1)) / 2;
+        } else {
+            this.ratingMedian = allRatings.get(((totalReviews + 1) / 2) - 1);
+        }
+        return this.ratingMedian;
     }
 
+    /**
+     * Compara este director con otro basándose en la mediana de sus calificaciones.
+     * Necesario para el ordenamiento en el Heap.
+     */
     @Override
-    public int compareTo(Director tempDirector) {
-        return Float.compare(this.obtainMediana(),tempDirector.obtainMediana());
+    public int compareTo(Director otherDirector) {
+        return Float.compare(this.getRatingMedian(), otherDirector.getRatingMedian());
     }
 }

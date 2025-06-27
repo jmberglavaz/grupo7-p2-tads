@@ -3,45 +3,51 @@ package um.edu.uy.entities;
 import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.List.MyList;
 
+/**
+ * Representa una colección o saga de películas.
+ */
 public class Coleccion {
     private int id;
-    private String titulo;
-    private MyList<Pelicula> listaDePeliculas;
-    public Coleccion(int id, String titulo) {
+    private String title;
+    private MyList<Pelicula> movieList;
+
+    /**
+     * Constructor para crear una nueva instancia de Coleccion.
+     * @param id El identificador único de la colección.
+     * @param title El título de la colección.
+     */
+    public Coleccion(int id, String title) {
         this.id = id;
-        this.titulo = titulo;
-        this.listaDePeliculas = new MyLinkedListImpl<>();
+        this.title = title;
+        this.movieList = new MyLinkedListImpl<>();
     }
+
+    // GETTERS
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getTitle() {
+        return title;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public MyList<Pelicula> getMovieList() {
+        return movieList;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public int getMovieCount(){
+        return movieList.size();
     }
 
-    public MyList<Pelicula> getListaDePeliculas() {
-        return listaDePeliculas;
-    }
 
-    public void setListaDePeliculas(MyList<Pelicula> listaDePeliculas) {
-        this.listaDePeliculas = listaDePeliculas;
-    }
+    // MÉTODOS PARA MODIFICAR LA LISTA
 
-    public void agregarPelicula(Pelicula tempPeli){
-        listaDePeliculas.add(tempPeli);
-    }
-
-    public int getCantidadPeliculas(){
-        return listaDePeliculas.size();
+    /**
+     * Agrega una película a la colección.
+     * @param movie La película a agregar.
+     */
+    public void addMovie(Pelicula movie){
+        movieList.add(movie);
     }
 }

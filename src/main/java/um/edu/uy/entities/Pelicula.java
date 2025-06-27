@@ -4,110 +4,123 @@ import um.edu.uy.TADs.List.Linked.MyLinkedListImpl;
 import um.edu.uy.TADs.List.MyArrayListImpl;
 import um.edu.uy.TADs.List.MyList;
 
-public class Pelicula implements Comparable<Pelicula>{
+/**
+ * Representa una película con sus datos principales y listas de evaluaciones.
+ */
+public class Pelicula implements Comparable<Pelicula> {
     private int id;
-    private String titulo;
-    private String fechaDeEstreno;
-    private long ingresos;
-    private final MyList<MyList<Evaluacion>> listaEvaluaciones;
-    private MyList<String> listaDeActores;
+    private String title;
+    private String releaseDate;
+    private long revenue;
 
-    public Pelicula(int id, String titulo, String fechaDeEstreno, long ingresos) {
+    /**
+     * Estructura optimizada: una lista de 12 listas. Cada sub-lista interna
+     * corresponde a un mes del año (índice 0 = Enero, 1 = Febrero, etc.),
+     * y almacena las evaluaciones de ese mes.
+     */
+    private final MyList<MyList<Evaluacion>> reviewsByMonth;
+
+    /**
+     * Constructor para crear una nueva Pelicula.
+     * Inicializa la estructura para almacenar evaluaciones por mes.
+     */
+    public Pelicula(int id, String title, String releaseDate, long revenue) {
         this.id = id;
-        this.titulo = titulo;
-        this.fechaDeEstreno = fechaDeEstreno;
-        this.ingresos = ingresos;
-        listaEvaluaciones = new MyArrayListImpl<>(12);
-        for (int iter = 0 ; iter < 12 ; iter++){
-            listaEvaluaciones.add(new MyLinkedListImpl<>());
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.revenue = revenue;
+        this.reviewsByMonth = new MyArrayListImpl<>(12);
+        // Se inicializan las 12 listas internas, una para cada mes
+        for (int i = 0; i < 12; i++) {
+            reviewsByMonth.add(new MyLinkedListImpl<>());
         }
     }
+
+    // GETTERS
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getTitle() {
+        return title;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public long getRevenue() {
+        return revenue;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getFechaDeEstreno() {
-        return fechaDeEstreno;
-    }
-
-    public void setFechaDeEstreno(String fechaDeEstreno) {
-        this.fechaDeEstreno = fechaDeEstreno;
-    }
-
-    public long getIngresos() {
-        return ingresos;
-    }
-
-    public void setIngresos(long ingresos) {
-        this.ingresos = ingresos;
-    }
-
-    public MyList<Evaluacion> getListaEvaluaciones() {
-        MyList<Evaluacion> listaResultado = new MyArrayListImpl<>(100);
-        for (MyList<Evaluacion> tempLista : this.listaEvaluaciones){
-            if (tempLista == null) {continue;}
-            for (Evaluacion tempEvaluacion : tempLista){
-                listaResultado.add(tempEvaluacion);
+    /**
+     * Devuelve una lista con TODAS las evaluaciones de la película, juntando
+     * las de todos los meses.
+     * @return Una lista con todas las evaluaciones.
+     */
+    public MyList<Evaluacion> getAllReviews() {
+        MyList<Evaluacion> resultList = new MyArrayListImpl<>(100);
+        for (MyList<Evaluacion> monthlyReviews : this.reviewsByMonth) {
+            if (monthlyReviews == null) { continue; }
+            for (Evaluacion review : monthlyReviews) {
+                resultList.add(review);
             }
         }
-        return listaResultado;
+        return resultList;
     }
 
-    public MyList<Evaluacion> getListaEvaluacionesEnMes(int mes){
-        if (mes < 1 || mes > 12){
-            throw new IllegalArgumentException("El mes tiene que estar entre 1 y 12");
+    /**
+     * Devuelve la lista de evaluaciones para un mes específico.
+     * @param month El mes (1-12).
+     * @return La lista de evaluaciones correspondiente a ese mes.
+     */
+    public MyList<Evaluacion> getReviewsForMonth(int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("El mes debe estar entre 1 y 12");
         }
-        return listaEvaluaciones.get(mes-1);
+        return reviewsByMonth.get(month - 1);
     }
 
-    public int getCantidadEvaluaciones() {
+    /**
+     * Calcula y devuelve el número total de evaluaciones que ha recibido la película.
+     * @return El total de evaluaciones.
+     */
+    public int getTotalReviewCount() {
         int size = 0;
-        for (MyList<Evaluacion> evalucionesPorMes : listaEvaluaciones){
-            size += evalucionesPorMes.size();
+        for (MyList<Evaluacion> monthlyReviews : reviewsByMonth) {
+            size += monthlyReviews.size();
         }
         return size;
     }
 
-    public float getPromedioDeEvaluaciones() {
-        float sumaDeCalificaciones = 0;
-        int size = 0;
-        for (MyList<Evaluacion> tempListaEvaluacion : listaEvaluaciones) {
-            size += tempListaEvaluacion.size();
-            for (Evaluacion tempEvaluacion : tempListaEvaluacion)
-                sumaDeCalificaciones += tempEvaluacion.getCalificacion();
+    /**
+     * Calcula y devuelve el promedio de todas las calificaciones recibidas.
+     * @return El promedio de calificaciones, o 0 si no tiene evaluaciones.
+     */
+    public float getAverageRating() {
+        float totalRatingSum = 0;
+        int reviewCount = 0;
+        for (MyList<Evaluacion> monthlyReviews : reviewsByMonth) {
+            reviewCount += monthlyReviews.size();
+            for (Evaluacion review : monthlyReviews)
+                totalRatingSum += review.getRating();
         }
-        return size == 0 ? 0 : sumaDeCalificaciones / size;
+        return reviewCount == 0 ? 0 : totalRatingSum / reviewCount;
     }
 
-    public void agregarEvaluacion(Evaluacion tempEvaluacion) {
-        MyList<Evaluacion> tempLista = listaEvaluaciones.get(tempEvaluacion.getFechaMes());
-        tempLista.add(tempEvaluacion);
-    }
-  
-   public void setListaDeActores(MyList<String> actores) {
-       listaDeActores = actores;
-   }
-
-    public MyList<String> getListaDeActores() {
-         return listaDeActores;
+    /**
+     * Agrega una nueva evaluación a la película, colocándola en la lista
+     * del mes correspondiente.
+     * @param review La evaluación a agregar.
+     */
+    public void addReview(Evaluacion review) {
+        MyList<Evaluacion> monthlyList = reviewsByMonth.get(review.getReviewMonth());
+        monthlyList.add(review);
     }
 
-
+    /**
+     * Compara esta película con otra basándose en la cantidad total de evaluaciones.
+     * Esto permite ordenar las películas por popularidad (cantidad de votos).
+     */
     @Override
-    public int compareTo(Pelicula tempPelicula) {
-        return Integer.compare(this.getCantidadEvaluaciones(), tempPelicula.getCantidadEvaluaciones());
+    public int compareTo(Pelicula otherMovie) {
+        return Integer.compare(this.getTotalReviewCount(), otherMovie.getTotalReviewCount());
     }
 }

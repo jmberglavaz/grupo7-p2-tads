@@ -2,9 +2,6 @@ package um.edu.uy.entities;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import um.edu.uy.entities.Evaluacion;
-import um.edu.uy.entities.Genero;
-import um.edu.uy.entities.Pelicula;
 
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,19 +26,19 @@ class GeneroTest {
         Pelicula peli2 = new Pelicula(2, "Peli 2", "", 0);
 
         // Usuario 101 hace 3 reviews
-        peli1.agregarEvaluacion(createRealEvaluation(101));
-        peli1.agregarEvaluacion(createRealEvaluation(101));
-        peli2.agregarEvaluacion(createRealEvaluation(101));
+        peli1.addReview(createRealEvaluation(101));
+        peli1.addReview(createRealEvaluation(101));
+        peli2.addReview(createRealEvaluation(101));
 
         // Usuario 202 hace 5 reviews (el que mas)
-        peli1.agregarEvaluacion(createRealEvaluation(202));
-        peli1.agregarEvaluacion(createRealEvaluation(202));
-        peli2.agregarEvaluacion(createRealEvaluation(202));
-        peli2.agregarEvaluacion(createRealEvaluation(202));
-        peli2.agregarEvaluacion(createRealEvaluation(202));
+        peli1.addReview(createRealEvaluation(202));
+        peli1.addReview(createRealEvaluation(202));
+        peli2.addReview(createRealEvaluation(202));
+        peli2.addReview(createRealEvaluation(202));
+        peli2.addReview(createRealEvaluation(202));
 
         // Usuario 303 hace 1 review
-        peli1.agregarEvaluacion(createRealEvaluation(303));
+        peli1.addReview(createRealEvaluation(303));
 
         genero.agregarPelicula(peli1);
         genero.agregarPelicula(peli2);

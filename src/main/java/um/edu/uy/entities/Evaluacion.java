@@ -1,40 +1,38 @@
 package um.edu.uy.entities;
 
-
 import java.util.Date;
 
+/**
+ * Representa una evaluación (calificación) de un usuario para una película en una fecha específica.
+ */
 public class Evaluacion {
-    private Integer idUsuario;
-    private float calificacion;
-    private Integer fechaMes;
+    private Integer userId;
+    private float rating;
+    private Integer reviewMonth; // Mes en que se hizo la reseña (0=Enero, 1=Febrero, etc.)
 
-    public Evaluacion(int idUsuario, float calificacion, Date fechaMes) {
-        this.idUsuario = idUsuario;
-        this.calificacion = calificacion;
-        this.fechaMes = fechaMes.getMonth();
+    /**
+     * Constructor para crear una nueva Evaluacion.
+     * @param userId El ID del usuario que realiza la evaluación.
+     * @param rating La calificación dada (ej. de 1 a 5).
+     * @param date La fecha en que se realizó la evaluación.
+     */
+    @SuppressWarnings("deprecation") // Se usa getMonth() que está deprecado, pero el CSV lo requiere así.
+    public Evaluacion(int userId, float rating, Date date) {
+        this.userId = userId;
+        this.rating = rating;
+        this.reviewMonth = date.getMonth(); // Extrae el mes de la fecha
     }
 
-    public int getIdUsuario() {
-        return idUsuario;
+    // GETTERS
+    public int getUserId() {
+        return userId;
     }
 
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
+    public float getRating() {
+        return rating;
     }
 
-    public float getCalificacion() {
-        return calificacion;
-    }
-
-    public void setCalificacion(float calificacion) {
-        this.calificacion = calificacion;
-    }
-
-    public int getFechaMes() {
-        return fechaMes;
-    }
-
-    public void setFechaMes(int fechaMes) {
-        this.fechaMes = fechaMes;
+    public int getReviewMonth() {
+        return reviewMonth;
     }
 }
