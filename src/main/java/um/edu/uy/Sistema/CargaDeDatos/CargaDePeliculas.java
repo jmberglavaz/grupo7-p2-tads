@@ -19,22 +19,32 @@ import um.edu.uy.entities.Genero;
 import um.edu.uy.entities.Idioma;
 import um.edu.uy.entities.Pelicula;
 
+/**
+ * Clase encargada de cargar los datos de películas desde un archivo CSV.
+ */
 public class CargaDePeliculas {
     private CSVReader lectorCSV;
-    private final boolean developerMode; // Si se quiere usar el modo desarrollador, se puede cambiar a true para imprimir mas detalles
-    private final MyHash<Integer, Pelicula> peliculas;
-    private final MyHash<Integer, Genero> generos;
-    private final MyHash<String, Idioma> idiomas;
-    private final MyHash<Integer, Coleccion> colecciones;
-    private final Pattern PATTERNCOLECCION = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
-    private final Pattern PATTERNGENERO = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+    private final boolean developerMode;   // Indica si se debe mostrar información adicional para desarrolladores
+    private final MyHash<Integer, Pelicula> peliculas;  // Hash para almacenar películas por ID
+    private final MyHash<Integer, Genero> generos;  // Hash para almacenar géneros por ID
+    private final MyHash<String, Idioma> idiomas;   // Hash para almacenar idiomas por acrónimo
+    private final MyHash<Integer, Coleccion> colecciones;   // Hash para almacenar colecciones por ID
 
+    // Patrones para extraer colecciones y géneros de las cadenas
+    private final Pattern patterenColeccion = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+    private final Pattern patternGenero = Pattern.compile("'id':\\s*(\\d+),\\s*'name':\\s*'([^']+)'");
+
+    /**
+     * Constructor. Inicializa los hashes y carga los datos desde el archivo CSV.
+     * @param developerMode Si es true, imprime estadísticas y detalles adicionales.
+     */
     public CargaDePeliculas(boolean developerMode) {
         this.developerMode = developerMode;
         try{
+            // Se abre el archivo de películas y se inicializa el lector CSV
             FileInputStream archivoCSV = new FileInputStream("movies_metadata.csv");
             this.lectorCSV = new CSVReader(new InputStreamReader(archivoCSV));
-            lectorCSV.readNext(); // Se lee la primera línea (cabecera) y se descarta
+            lectorCSV.readNext(); // Se descarta la cabecera
         } catch (IOException | CsvValidationException e) {
             System.out.println("Error critico al cargar el archivo de peliculas. Asegurese de que el archivo movies_metadata.csv se encuentre en la raiz del proyecto.");
             System.out.println("Error detallado: " + e.getMessage());
@@ -52,11 +62,15 @@ public class CargaDePeliculas {
         }
     }
 
+    /**
+     * Carga los datos de películas, géneros, idiomas y colecciones desde el archivo CSV.
+     */
     public void cargarDatos() throws IOException, CsvValidationException {
         long inicio = developerMode ? System.currentTimeMillis() : 0;
 
         System.out.println("Iniciando carga de peliculas...");
         String[] dataLine;
+        // Procesa cada línea del archivo CSV
         while ((dataLine = lectorCSV.readNext()) != null) {
 
             int idPelicula;
@@ -71,6 +85,7 @@ public class CargaDePeliculas {
                 ganancias = Long.parseLong(dataLine[13]);
             } catch (NumberFormatException ignored) {}
 
+            // Se crea la película y se inserta en el hash
             Pelicula pelicula = new Pelicula(idPelicula, dataLine[8], dataLine[12], ganancias);
             try {
                 peliculas.insert(idPelicula, pelicula);
@@ -78,6 +93,7 @@ public class CargaDePeliculas {
                 continue;
             }
 
+            // Procesa y asocia los géneros a la película
             MyList<Genero> listaGeneros = searchGeneros(dataLine[3]);
             for (Genero genero : listaGeneros) {
                 try{
@@ -89,6 +105,7 @@ public class CargaDePeliculas {
                 }
             }
 
+            // Procesa y asocia el idioma a la película
             String acronimoIdioma = dataLine[7];
             if (acronimoIdioma != null && !acronimoIdioma.trim().isEmpty()) {
                 Idioma idioma = new Idioma(acronimoIdioma);
@@ -101,6 +118,7 @@ public class CargaDePeliculas {
                 }
             }
 
+            // Procesa y asocia la colección a la película
             Coleccion coleccion = searchColecciones(dataLine[1], idPelicula, dataLine[8]);
             if (coleccion != null){
                 try {
@@ -119,6 +137,7 @@ public class CargaDePeliculas {
 
     }
 
+    // Getters para acceder a los hashes de películas, géneros, idiomas y colecciones
     public MyHash<Integer, Pelicula> getPeliculas() {
         return peliculas;
     }
@@ -135,13 +154,18 @@ public class CargaDePeliculas {
         return colecciones;
     }
 
+    /**
+     * Extrae los géneros de la linea dada y los devuelve en una lista.
+     * @param entrada Cadena con los datos de géneros.
+     * @return Lista de géneros encontrados.
+     */
     private MyList<Genero> searchGeneros(String entrada){
         MyList<Genero> listaGeneros = new MyLinkedListImpl<>();
         if (entrada == null || entrada.trim().isEmpty()) {
             return listaGeneros;
         }
 
-        Matcher matcher = PATTERNGENERO.matcher(entrada);
+        Matcher matcher = patternGenero.matcher(entrada);
         while (matcher.find()) {
             try {
                 int id = Integer.parseInt(matcher.group(1));
@@ -153,6 +177,13 @@ public class CargaDePeliculas {
 
     }
 
+    /**
+     * Extrae la colección de la entrada dada.
+     * @param entrada Cadena con los datos de la colección.
+     * @param idPelicula ID de la película.
+     * @param nombrePelicula Nombre de la película.
+     * @return Colección encontrada o null si no hay.
+     */
     private Coleccion searchColecciones(String entrada, int idPelicula, String nombrePelicula){
         if (entrada == null) {
             return null;
@@ -160,7 +191,7 @@ public class CargaDePeliculas {
             return new Coleccion(idPelicula, nombrePelicula);
         }
 
-        Matcher matcher = PATTERNCOLECCION.matcher(entrada);
+        Matcher matcher = patterenColeccion.matcher(entrada);
         if (matcher.find()){
             try {
                 int id = Integer.parseInt(matcher.group(1));
@@ -173,6 +204,11 @@ public class CargaDePeliculas {
         return null;
     }
 
+    /**
+     * Muestra estadísticas de la carga de películas si el modo desarrollador está activo.
+     * @param inicio Tiempo de inicio de la carga.
+     * @param fin Tiempo de finalización de la carga.
+     */
     private void mostrarEstadisticasCarga(long inicio, long fin){
         System.out.println("\n=== ESTADISTICAS DE CARGA DE PELICULAS ===");
         System.out.println("Tiempo total de carga: " + (fin - inicio) + " ms");

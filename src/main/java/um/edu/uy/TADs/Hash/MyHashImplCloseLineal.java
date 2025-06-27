@@ -185,8 +185,6 @@ public class MyHashImplCloseLineal<K,T> implements MyHash<K,T> {
         return Math.abs(hash) % capacity;
     }
 
-
-
     @Override
     public Iterator<T> iterator() {
         return new MyHashIterator<>(table, deleteNode);
